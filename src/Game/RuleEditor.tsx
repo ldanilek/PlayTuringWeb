@@ -101,6 +101,13 @@ export function RuleEditor({
   const [writeCharacter, setWriteCharacter] = useState<string>(initialRule?.write ?? possibleCharacters[0]);
   const [direction, setDirection] = useState<Direction>(initialRule?.direction ?? Direction.Left);
 
+  // Which of the things have they clicked on?
+  const [clickedStartState, setClickedStartState] = useState(false);
+  const [clickedReadCharacter, setClickedReadCharacter] = useState(false);
+  const [clickedEndState, setClickedEndState] = useState(false);
+  const [clickedWriteCharacter, setClickedWriteCharacter] = useState(false);
+  const [clickedDirection, setClickedDirection] = useState(false);
+
   // Current rule based on state
   const currentRule: Rule = useMemo(() => ({
     state: startingState,
@@ -127,7 +134,7 @@ export function RuleEditor({
   function directionTape(direction: Direction) {
     return {
       char: direction === Direction.Left ? "⬅︎" : "➡︎",
-      highlight: hintIndex === 6 || hintIndex === 1
+      highlight: (hintIndex === 6 || hintIndex === 1) ? 'highlight' as const : (hintIndex === undefined && !clickedDirection) ? 'clickable' as const : undefined
     };
   }
 
@@ -148,16 +155,18 @@ export function RuleEditor({
               characters={["", {
                 char: readingCharacter,
                 options: possibleCharacters,
-                onOptionChange: (option) => setReadingCharacter(option),
-                highlight: hintIndex === 3 || hintIndex === 1
+                onOptionChange: setReadingCharacter,
+                onClick: () => setClickedReadCharacter(true),
+                highlight: (hintIndex === 3 || hintIndex === 1) ? 'highlight' : (hintIndex === undefined && !clickedReadCharacter) ? 'clickable' : undefined
               }, ""]}
               selectedIndex={1}
               state={startingState}
               onTapCell={() => {}}
               stateOptions={startingStateOptions}
               onStateChange={setStartingState}
-              highlightState={hintIndex === 2 || hintIndex === 1}
+              highlightState={(hintIndex === 2 || hintIndex === 1) ? 'highlight' : (hintIndex === undefined && !clickedStartState) ? 'clickable' : undefined}
               customStates={customStates}
+              onClickState={() => setClickedStartState(true)}
             />
           </div>
 
@@ -168,21 +177,25 @@ export function RuleEditor({
                 char: writeCharacter,
                 options: possibleCharacters,
                 onOptionChange: (option) => setWriteCharacter(option),
-                highlight: hintIndex === 4 || hintIndex === 1,
+                highlight: (hintIndex === 4 || hintIndex === 1) ? 'highlight' : (hintIndex === undefined && !clickedWriteCharacter) ? 'clickable' : undefined,
+                onClick: () => setClickedWriteCharacter(true),
               }, directionTape(Direction.Right)]}
               selectedIndex={direction === Direction.Left ? 0 : 2}
               onTapCell={(tappedIndex) => {
                 if (tappedIndex === 0) {
                   setDirection(Direction.Left);
+                  setClickedDirection(true);
                 } else if (tappedIndex === 2) {
                   setDirection(Direction.Right);
+                  setClickedDirection(true);
                 }
               }}
               state={endState}
               stateOptions={endStateOptions}
               onStateChange={setEndState}
-              highlightState={hintIndex === 5 || hintIndex === 1 || hintIndex === 7}
+              highlightState={(hintIndex === 5 || hintIndex === 1 || hintIndex === 7) ? 'highlight' : (hintIndex === undefined && !clickedEndState) ? 'clickable' : undefined}
               customStates={customStates}
+              onClickState={() => setClickedEndState(true)}
             />
           </div>
         </div>

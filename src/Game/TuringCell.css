@@ -41,3 +41,8 @@
   border: 5px solid var(--color-tape-highlight);
   box-shadow: 0 0 10px var(--color-tape-highlight);
 }
+
+.help-clickable {
+  border: 1px solid var(--color-tape-highlight);
+  box-shadow: 0 0 1px var(--color-tape-highlight);
+}
