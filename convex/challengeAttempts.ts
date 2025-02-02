@@ -3,22 +3,22 @@ import { mutation, MutationCtx, query, QueryCtx } from "./_generated/server";
 import { Id } from "./_generated/dataModel";
 import { v } from "convex/values";
 
-export async function getChallengeAttempt(ctx: QueryCtx, challengeIndex: number): Promise<Id<"challengeAttempts"> | null> {
+export async function getChallengeAttempt(ctx: QueryCtx, challengeName: string): Promise<Id<"challengeAttempts"> | null> {
   const userId = await getAuthUserId(ctx);
   if (!userId) {
     throw new Error("Unauthorized");
   }
 
   const challengeAttempt = await ctx.db.query("challengeAttempts")
-    .withIndex("by_user", (q) => q.eq("userId", userId).eq("index", challengeIndex))
+    .withIndex("by_user", (q) => q.eq("userId", userId).eq("challengeName", challengeName))
     .order("desc")
     .first();
 
   return challengeAttempt?._id ?? null;
 }
 
-export async function getOrCreateChallengeAttempt(ctx: MutationCtx, challengeIndex: number): Promise<Id<"challengeAttempts">> {
-  const challengeAttempt = await getChallengeAttempt(ctx, challengeIndex);
+export async function getOrCreateChallengeAttempt(ctx: MutationCtx, challengeName: string): Promise<Id<"challengeAttempts">> {
+  const challengeAttempt = await getChallengeAttempt(ctx, challengeName);
   if (challengeAttempt) {
     return challengeAttempt;
   }
@@ -27,7 +27,7 @@ export async function getOrCreateChallengeAttempt(ctx: MutationCtx, challengeInd
 
   return await ctx.db.insert("challengeAttempts", {
     userId,
-    index: challengeIndex,
+    challengeName,
     completed: false,
   });
 }
@@ -46,10 +46,10 @@ export const getChallengeAttempts = query({
 
 export const challengeCompleted = mutation({
   args: {
-    challengeIndex: v.number(),
+    challengeName: v.string(),
   },
   handler: async (ctx, args) => {
-    const challengeAttempt = await getOrCreateChallengeAttempt(ctx, args.challengeIndex);
+    const challengeAttempt = await getOrCreateChallengeAttempt(ctx, args.challengeName);
     await ctx.db.patch(challengeAttempt, {
       completed: true,
     });

@@ -4,6 +4,7 @@ import { TuringTape } from './TuringTape';
 import './ChallengeSelector.css';
 import { api } from '../../convex/_generated/api';
 import { useQuery } from 'convex/react';
+import { generateChallenge } from '@/lib/Challenges';
 
 const LEVELS_PER_LINE = 5;
 const LEVEL_LINES = 5;
@@ -50,8 +51,10 @@ export function ChallengeSelector() {
     navigate(`/challenge/${index}`);
   }, [navigate]);
 
-  function isChallengeCompleted(index: number) {
-    return challengeAttempts?.some(attempt => attempt.index === index && attempt.completed);
+  function isChallengeCompleted(challengeIndex: number) {
+    const challenge = generateChallenge(challengeIndex);
+    const challengeName = challenge.name;
+    return challengeAttempts?.some(attempt => attempt.challengeName === challengeName && attempt.completed);
   }
 
   return (

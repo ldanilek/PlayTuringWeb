@@ -6,12 +6,12 @@ import { getChallengeAttempt, getOrCreateChallengeAttempt } from "./challengeAtt
 
 export const createRule = mutation({
   args: {
-    challengeIndex: v.number(),
+    challengeName: v.string(),
     replacingRule: v.optional(ruleValidator),
     rule: ruleValidator,
   },
   handler: async (ctx, args) => {
-    const challengeAttemptId = await getOrCreateChallengeAttempt(ctx, args.challengeIndex);
+    const challengeAttemptId = await getOrCreateChallengeAttempt(ctx, args.challengeName);
     const userId = (await getAuthUserId(ctx))!;
 
     const existingRule = await ctx.db.query("rules")
@@ -43,11 +43,11 @@ export const createRule = mutation({
 
 export const deleteRule = mutation({
   args: {
-    challengeIndex: v.number(),
+    challengeName: v.string(),
     rule: ruleValidator,
   },
   handler: async (ctx, args) => {
-    const challengeAttemptId = await getOrCreateChallengeAttempt(ctx, args.challengeIndex);
+    const challengeAttemptId = await getOrCreateChallengeAttempt(ctx, args.challengeName);
     const userId = (await getAuthUserId(ctx))!;
 
     const rule = await ctx.db.query("rules")
@@ -62,10 +62,10 @@ export const deleteRule = mutation({
 
 export const getRules = query({
   args: {
-    challengeIndex: v.number(),
+    challengeName: v.string(),
   },
   handler: async (ctx, args) => {
-    const challengeAttemptId = await getChallengeAttempt(ctx, args.challengeIndex);
+    const challengeAttemptId = await getChallengeAttempt(ctx, args.challengeName);
     if (!challengeAttemptId) {
       return [];
     }

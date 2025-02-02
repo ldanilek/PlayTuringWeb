@@ -17,9 +17,9 @@ export default defineSchema({
   ...authTables,
   challengeAttempts: defineTable({
     userId: v.id("users"),
-    index: v.number(),
+    challengeName: v.string(),
     completed: v.boolean(),
-  }).index("by_user", ["userId", "index"]),
+  }).index("by_user", ["userId", "challengeName"]),
   rules: defineTable({
     userId: v.id("users"),
     challengeAttempt: v.id("challengeAttempts"),

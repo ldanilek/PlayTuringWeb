@@ -22,6 +22,7 @@ export function Challenge({ index: challengeIndex, onComplete }: ChallengeProps)
   const markChallengeCompleted = useMutation(api.challengeAttempts.challengeCompleted);
   const [reloadCount, setReloadCount] = useState(0);
   const challenge = useMemo(() => generateChallenge(challengeIndex), [challengeIndex, reloadCount]);
+  const challengeName = useMemo(() => challenge.name, [challenge]);
 
   const [tape, setTape] = useState<Tape>(challenge.startTape.slice());
   const [headPosition, setHeadPosition] = useState(challenge.startIndex);
@@ -35,7 +36,7 @@ export function Challenge({ index: challengeIndex, onComplete }: ChallengeProps)
   const [highlightedRule, setHighlightedRule] = useState<Rule | undefined>(undefined);
   const [isSuccess, setIsSuccess] = useState(false);
 
-  const rulesRaw = useQuery(api.rules.getRules, { challengeIndex });
+  const rulesRaw = useQuery(api.rules.getRules, { challengeName });
   const rules: Rule[] | undefined = useMemo(() => rulesRaw?.map(r => ({
     state: r.state,
     read: r.read,
@@ -44,7 +45,7 @@ export function Challenge({ index: challengeIndex, onComplete }: ChallengeProps)
     direction: r.direction === 'left' ? Direction.Left : Direction.Right,
   })), [rulesRaw]);
   const saveRule = useMutation(api.rules.createRule).withOptimisticUpdate((localStore, args) => {
-    const prev = localStore.getQuery(api.rules.getRules, { challengeIndex: args.challengeIndex });
+    const prev = localStore.getQuery(api.rules.getRules, { challengeName: args.challengeName });
     if (prev === undefined) {
       throw new Error('Rules are not loaded');
     }
@@ -67,15 +68,15 @@ export function Challenge({ index: challengeIndex, onComplete }: ChallengeProps)
       // Add new rule
       newRules = [rule, ...prev];
     }
-    localStore.setQuery(api.rules.getRules, { challengeIndex: args.challengeIndex }, newRules);
+    localStore.setQuery(api.rules.getRules, { challengeName: args.challengeName }, newRules);
   });
   const deleteRule = useMutation(api.rules.deleteRule).withOptimisticUpdate((localStore, args) => {
-    const prev = localStore.getQuery(api.rules.getRules, { challengeIndex: args.challengeIndex });
+    const prev = localStore.getQuery(api.rules.getRules, { challengeName: args.challengeName });
     if (prev === undefined) {
       throw new Error('Rules are not loaded');
     }
     const newRules = prev.filter((rule) => rule.state !== args.rule.state || rule.read !== args.rule.read);
-    localStore.setQuery(api.rules.getRules, { challengeIndex: args.challengeIndex }, newRules);
+    localStore.setQuery(api.rules.getRules, { challengeName: args.challengeName }, newRules);
   });
 
   const startOver = useCallback(() => {
@@ -130,7 +131,7 @@ export function Challenge({ index: challengeIndex, onComplete }: ChallengeProps)
       }
       setIsSuccess(true);
       setAlert('Success! You did it! Try another challenge!');
-      void markChallengeCompleted({ challengeIndex });
+      void markChallengeCompleted({ challengeName });
       onComplete?.();
       return;
     }
@@ -169,7 +170,7 @@ export function Challenge({ index: challengeIndex, onComplete }: ChallengeProps)
   }, [setEditingRule, setIsRuleEditorOpen, rules]);
 
   const handleSaveRule = useCallback((rule: Rule) => {
-    void saveRule({ challengeIndex, rule, replacingRule: editingRule });
+    void saveRule({ challengeName, rule, replacingRule: editingRule });
     setAlert(null);
     setIsRuleEditorOpen(false);
     setEditingRule(undefined);
@@ -186,7 +187,7 @@ export function Challenge({ index: challengeIndex, onComplete }: ChallengeProps)
     if (rules === undefined) {
       throw new Error('Rules are not loaded');
     }
-    void deleteRule({ challengeIndex, rule: rules[deleteAtIndex] });
+    void deleteRule({ challengeName, rule: rules[deleteAtIndex] });
   }, [deleteRule, rules]);
   
   const currentRuleNeeded: Rule | undefined = useMemo(() => {
