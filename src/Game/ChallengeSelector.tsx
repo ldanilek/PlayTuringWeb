@@ -72,7 +72,8 @@ export function ChallengeSelector() {
               onTapCell={(index) => {
                 handleChallengeSelect(rowIndex * LEVELS_PER_LINE + index);
               }}
-              state=""
+              state={0}
+              customStates={[""]}
             />
           </div>
         ))}

@@ -10,6 +10,7 @@
   --color-tape-selected-light: rgb(16, 27, 78);
   --color-tape-bg-light: rgb(35, 92, 155);
   --color-tape-char-light: rgb(255, 255, 255);
+  --color-tape-highlight-light: rgb(200, 200, 0);
 
   /* Dark mode colors */
   --color-teal-dark: rgb(102, 180, 214);
@@ -20,7 +21,7 @@
   --color-tape-selected-dark: rgb(102, 180, 214);
   --color-tape-bg-dark: rgb(16, 27, 78);
   --color-tape-char-dark: rgb(255, 255, 255);
-
+  --color-tape-highlight-dark: rgb(255, 255, 0);
   /* Default to light mode */
   --color-teal: var(--color-teal-light);
   --color-light-blue: var(--color-light-blue-light);
@@ -30,6 +31,7 @@
   --color-tape-selected: var(--color-tape-selected-light);
   --color-tape-bg: var(--color-tape-bg-light);
   --color-tape-char: var(--color-tape-char-light);
+  --color-tape-highlight: var(--color-tape-highlight-light);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -42,6 +44,7 @@
     --color-tape-selected: var(--color-tape-selected-dark);
     --color-tape-bg: var(--color-tape-bg-dark);
     --color-tape-char: var(--color-tape-char-dark);
+    --color-tape-highlight: var(--color-tape-highlight-dark);
   }
 }
 

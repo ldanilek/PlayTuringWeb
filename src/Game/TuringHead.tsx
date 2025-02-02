@@ -1,16 +1,19 @@
 import React from 'react';
 import './TuringHead.css';
+import { getState } from '@/lib/Challenges';
 
 interface TuringHeadProps {
-  state: string;
+  state: number;
   width?: number;
   height?: number;
   style?: React.CSSProperties;
-  stateOptions?: string[];
-  onStateChange?: (state: string) => void;
+  stateOptions?: number[];
+  onStateChange?: (state: number) => void;
+  highlight?: boolean;
+  customStates: string[] | undefined;
 }
 
-export function TuringHead({ state, width = 40, height = 40, style, stateOptions, onStateChange }: TuringHeadProps) {
+export function TuringHead({ state, width = 40, height = 40, style, stateOptions, onStateChange, highlight, customStates }: TuringHeadProps) {
   return (
     <div 
       className="turing-head"
@@ -21,18 +24,18 @@ export function TuringHead({ state, width = 40, height = 40, style, stateOptions
       }}
     >
       <div className="turing-head-arrow" />
-      <div className="turing-head-state">
+      <div className={`turing-head-state ${highlight ? 'help-highlight' : ''}`}>
         {stateOptions ? (
           <select
             value={state}
-            onChange={(e) => onStateChange?.(e.target.value)}
+            onChange={(e) => onStateChange?.(parseInt(e.target.value))}
           >
             {stateOptions.map((option) => (
-              <option key={option} value={option}>{option}</option>
+              <option key={option} value={option}>{getState(customStates, option)}</option>
             ))}
           </select>
         ) : (
-          state
+          getState(customStates, state)
         )}
       </div>
     </div>

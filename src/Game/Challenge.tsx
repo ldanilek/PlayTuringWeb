@@ -3,7 +3,7 @@ import { TuringTape } from './TuringTape';
 import './Challenge.css';
 import { 
   Tape, 
-  generateChallenge
+  generateChallenge,
 } from '@/lib/Challenges';
 import { calculateAccuracy, Direction, mapRule } from '../lib/TuringMachine';
 import { RuleDisplay } from './RuleDisplay';
@@ -171,6 +171,7 @@ export function Challenge({ index: challengeIndex, onComplete }: ChallengeProps)
     setEditingRule(undefined);
     startOver();
     setHighlightedRule(rule);
+    setIsPlaying(true);
   }, [setEditingRule, setIsRuleEditorOpen, startOver, saveRule, editingRule]);
 
   const handleCancelRule = useCallback(() => {
@@ -183,6 +184,8 @@ export function Challenge({ index: challengeIndex, onComplete }: ChallengeProps)
       throw new Error('Rules are not loaded');
     }
     void deleteRule({ challengeName, rule: rules[deleteAtIndex] });
+    startOver();
+    setIsPlaying(true);
   }, [deleteRule, rules]);
   
   const currentRuleNeeded: Rule | undefined = useMemo(() => {
@@ -238,7 +241,11 @@ export function Challenge({ index: challengeIndex, onComplete }: ChallengeProps)
           </button>
           <button 
             className="button"
-            onClick={() => setReloadCount(reloadCount + 1)}
+            onClick={() => {
+              setReloadCount(reloadCount + 1);
+              setIsPlaying(false);
+              setAlert(null);
+            }}
           >
             Reload
           </button>
@@ -258,7 +265,8 @@ export function Challenge({ index: challengeIndex, onComplete }: ChallengeProps)
           characters={tape}
           selectedIndex={headPosition}
           onTapCell={() => {}}
-          state={`q${currentState}`}
+          state={currentState}
+          customStates={challenge.customStates}
         />
 
         <div className="goal-tape">
@@ -266,6 +274,7 @@ export function Challenge({ index: challengeIndex, onComplete }: ChallengeProps)
           <TuringTape
             characters={goalTape}
             onTapCell={() => {}}
+            customStates={challenge.customStates}
           />
         </div>
 
@@ -278,7 +287,7 @@ export function Challenge({ index: challengeIndex, onComplete }: ChallengeProps)
           </button>
           {rules?.map((rule, ruleIndex) => (
             <div key={ruleIndex} className={`rule ${highlightedRule?.state === rule.state && highlightedRule?.read === rule.read ? 'highlighted' : ''}`}>
-              <RuleDisplay rule={rule} onClick={() => handleEditRule(ruleIndex)} />
+              <RuleDisplay rule={rule} onClick={() => handleEditRule(ruleIndex)} customStates={challenge.customStates} />
               <div className="rule-actions">
                 <button 
                   className="rule-button"
@@ -314,6 +323,7 @@ export function Challenge({ index: challengeIndex, onComplete }: ChallengeProps)
               onSave={handleSaveRule}
               onCancel={handleCancelRule}
               initialRule={editingRule ?? currentRuleNeeded}
+              customStates={challenge.customStates}
             />
           </div>
         </div>

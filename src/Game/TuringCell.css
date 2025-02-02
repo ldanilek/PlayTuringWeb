@@ -34,4 +34,10 @@
   border: none;
   text-align: center;
   background-color: transparent;
+  transition: border 0.2s ease, box-shadow 0.2s ease;
+}
+
+.help-highlight {
+  border: 5px solid var(--color-tape-highlight);
+  box-shadow: 0 0 10px var(--color-tape-highlight);
 }

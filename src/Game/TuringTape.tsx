@@ -4,15 +4,17 @@ import { TuringHead } from './TuringHead';
 import { useLayoutEffect, useRef, useState } from 'react';
 
 interface TuringTapeProps {
-  characters: (string | { char: string, options?: string[], onOptionChange?: (option: string) => void })[];
+  characters: (string | { char: string, highlight: boolean } | { char: string, options?: string[], onOptionChange?: (option: string) => void, highlight: boolean })[];
   selectedIndex?: number;
   onTapCell: (index: number) => void;
-  state?: string;
-  stateOptions?: string[];
-  onStateChange?: (state: string) => void;
+  state?: number;
+  stateOptions?: number[];
+  onStateChange?: (state: number) => void;
+  highlightState?: boolean;
+  customStates: string[] | undefined;
 }
 
-export function TuringTape({ characters, selectedIndex, onTapCell, state, stateOptions, onStateChange }: TuringTapeProps) {
+export function TuringTape({ characters, selectedIndex, onTapCell, state, stateOptions, onStateChange, highlightState, customStates }: TuringTapeProps) {
   const [cellWidth, setCellWidth] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -48,10 +50,11 @@ export function TuringTape({ characters, selectedIndex, onTapCell, state, stateO
           onOptionChange={typeof char === 'object' && 'onOptionChange' in char ? char.onOptionChange : undefined}
           isSelected={index === selectedIndex}
           onClick={() => onTapCell(index)}
+          highlight={typeof char === 'object' && 'highlight' in char ? char.highlight : false}
         />
       ))}
       {selectedIndex !== undefined && state !== undefined &&
-        <TuringHead state={state} stateOptions={stateOptions} onStateChange={onStateChange} />
+        <TuringHead state={state} stateOptions={stateOptions} onStateChange={onStateChange} highlight={highlightState} customStates={customStates} />
       }
     </div>
   );

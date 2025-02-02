@@ -1,15 +1,17 @@
+import { getState } from '@/lib/Challenges';
 import { Rule, Direction } from '../lib/TuringMachine';
 import './RuleDisplay.css';
 
 interface RuleDisplayProps {
+  customStates: string[] | undefined;
   rule: Rule;
   onClick: () => void;
 }
 
-export function RuleDisplay({ rule, onClick }: RuleDisplayProps) {
+export function RuleDisplay({ rule, onClick, customStates }: RuleDisplayProps) {
   const directionSymbol = rule.direction === Direction.Left ? '⬅︎' : '➡︎';
-  const stateText = `q${rule.state}`;
-  const newStateText = `q${rule.newState}`;
+  const stateText = getState(customStates, rule.state);
+  const newStateText = getState(customStates, rule.newState);
 
   return (
     <div className="rule-display" onClick={onClick}>

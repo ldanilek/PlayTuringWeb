@@ -27,6 +27,10 @@ export function makeTape(...tapes: Tape[]): Tape {
   return tapes.reduce((acc, tape) => [...acc, ...tape], []);
 }
 
+export function getState(customStates: string[] | undefined, stateIndex: number): string {
+  return customStates ? customStates[stateIndex] : `q${stateIndex}`;
+}
+
 export function intToBinary(num: number): Tape {
   if (num === 0) return ['0'];
   const binary: string[] = [];
@@ -52,6 +56,7 @@ export interface Challenge {
   allowedCharacters: string[];
   hints: string[];
   requiresEndState: boolean;
+  customStates?: string[];
 }
 
 export function generateChallenge(index: number): Challenge {
@@ -66,7 +71,7 @@ export function generateChallenge(index: number): Challenge {
         maxState: 0,
         allowedCharacters: [BLANK, '1'],
         hints: ['Rule you need: read "_"→ write "1"'],
-        requiresEndState: false
+        requiresEndState: false,
       };
 
     case 1: // Go Right
@@ -140,7 +145,8 @@ export function generateChallenge(index: number): Challenge {
           "Play the machine to see what happens",
           "Loop through your four states"
         ],
-        requiresEndState: false
+        requiresEndState: false,
+        customStates: ['q0', 'q0_', 'q1', 'q1_']
       };
 
     case 6: // Bit flipper
@@ -158,7 +164,8 @@ export function generateChallenge(index: number): Challenge {
           "Ones become zeros",
           "Zeros become ones"
         ],
-        requiresEndState: false
+        requiresEndState: false,
+        customStates: ['🩴'],
       };
 
     case 7: // There and back
@@ -288,7 +295,7 @@ export function generateChallenge(index: number): Challenge {
         requiresEndState: true
       };
 
-    case 13: // Multiply
+    case 13:
     {
       const ones = createArrayFromArray(getRandomInt(0, 17) + 2, ['1']);
       const modThree = '' + (ones.length % 3);

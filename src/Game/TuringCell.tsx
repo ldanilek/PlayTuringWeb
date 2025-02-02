@@ -6,17 +6,18 @@ interface TuringCellProps {
   onClick: () => void;
   options?: string[];
   onOptionChange?: (option: string) => void;
+  highlight?: boolean;
 }
 
-export function TuringCell({ char, isSelected, onClick, options, onOptionChange }: TuringCellProps) {
+export function TuringCell({ char, isSelected, onClick, options, onOptionChange, highlight }: TuringCellProps) {
   return (
     <div
-      className={`tape-cell ${isSelected ? 'selected' : ''}`}
+      className={`tape-cell ${isSelected ? 'selected' : ''} ${highlight ? 'help-highlight' : ''}`}
       onClick={onClick}
     >
       {options ? (
         <select
-          className="cell-option"
+          className={`cell-option`}
           onChange={(e) => onOptionChange?.(e.target.value)}
           value={char}
         >
