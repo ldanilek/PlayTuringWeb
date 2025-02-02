@@ -58,16 +58,13 @@ export function SignInFormAnonymous() {
   return (
     <div className="max-w-[384px] mx-auto flex flex-col gap-4">
       <>
-        <h2 className="font-semibold text-2xl tracking-tight">
-          Start a guest session
-        </h2>
         <Button
           type="submit"
           onClick={() => {
             void signIn("anonymous");
           }}
         >
-          Sign in
+          Start a guest session
         </Button>
       </>
     </div>
