@@ -84,6 +84,8 @@ export function Challenge({ index: challengeIndex, onComplete }: ChallengeProps)
     startOver();
   }, [challenge]);
 
+  const [addRuleHighlight, setAddRuleHighlight] = useState(false);
+
   const step = useCallback(() => {
     if (headPosition < 0 || headPosition >= tape.length) {
       throw new Error("Head position out of bounds");
@@ -102,6 +104,7 @@ export function Challenge({ index: challengeIndex, onComplete }: ChallengeProps)
     if (!rule) {
       setIsPlaying(false);
       setAlert('No matching rule found!');
+      setAddRuleHighlight(true);
       return;
     }
 
@@ -153,6 +156,7 @@ export function Challenge({ index: challengeIndex, onComplete }: ChallengeProps)
     setEditingRule(undefined);
     setIsRuleEditorOpen(true);
     setAlert(null);
+    setAddRuleHighlight(false);
   }, [setEditingRule, setIsRuleEditorOpen]);
 
   const handleEditRule = useCallback((editAtIndex: number) => {
@@ -162,6 +166,7 @@ export function Challenge({ index: challengeIndex, onComplete }: ChallengeProps)
     setEditingRule(rules[editAtIndex]);
     setIsRuleEditorOpen(true);
     setAlert(null);
+    setAddRuleHighlight(false);
   }, [setEditingRule, setIsRuleEditorOpen, rules]);
 
   const handleSaveRule = useCallback((rule: Rule) => {
@@ -177,6 +182,7 @@ export function Challenge({ index: challengeIndex, onComplete }: ChallengeProps)
   const handleCancelRule = useCallback(() => {
     setIsRuleEditorOpen(false);
     setEditingRule(undefined);
+    setAddRuleHighlight(false);
   }, [setEditingRule, setIsRuleEditorOpen]);
 
   const handleDeleteRule = useCallback((deleteAtIndex: number) => {
@@ -186,6 +192,7 @@ export function Challenge({ index: challengeIndex, onComplete }: ChallengeProps)
     void deleteRule({ challengeName, rule: rules[deleteAtIndex] });
     startOver();
     setIsPlaying(true);
+    setAddRuleHighlight(false);
   }, [deleteRule, rules]);
   
   const currentRuleNeeded: Rule | undefined = useMemo(() => {
@@ -280,7 +287,7 @@ export function Challenge({ index: challengeIndex, onComplete }: ChallengeProps)
 
         <div className="rule-container">
           <button 
-            className="button add-rule"
+            className={`button add-rule ${rules?.length === 0 || addRuleHighlight ? 'help-clickable' : ''}`}
             onClick={handleAddRule}
           >
             Add Rule
