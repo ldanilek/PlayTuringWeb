@@ -16,7 +16,7 @@ export function TuringCell({ char, isSelected, onClick, options, onOptionChange 
     >
       {options ? (
         <select
-          className="option"
+          className="cell-option"
           onChange={(e) => onOptionChange?.(e.target.value)}
           value={char}
         >

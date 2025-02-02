@@ -5,6 +5,8 @@
   padding: 20px;
   background-color: var(--color-off-white);
   color: var(--color-navy-blue);
+  height: 100vh;
+  overflow-y: auto;
 }
 
 .challenge-header {
@@ -23,6 +25,7 @@
 
 .challenge-content {
   width: 100%;
+  height: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -72,7 +75,7 @@
   background-color: var(--color-light-blue);
   color: var(--color-navy-blue);
   width: 100%;
-  margin-top: 16px;
+  margin-bottom: 16px;
 }
 
 .rule-actions {
@@ -95,6 +98,16 @@
   background-color: #e53935;
 }
 
+:root {
+  --alert-shadow-color: rgb(0, 0, 0);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --alert-shadow-color: rgb(255, 255, 255);
+  }
+}
+
 .alert {
   position: fixed;
   bottom: 20px;
@@ -105,6 +118,8 @@
   padding: 12px 24px;
   border-radius: 4px;
   font-weight: bold;
+  box-shadow: 0 1px 15px var(--alert-shadow-color);
+  z-index: 1000;
 }
 
 .modal-overlay {
@@ -144,11 +159,17 @@
   flex-direction: column;
   align-items: center;
   gap: 8px;
-  margin: 20px 0;
 }
 
 .goal-tape h3 {
   color: var(--color-navy-blue);
   margin: 0;
   font-size: 18px;
+}
+
+.challenge h1 {
+  font-size: 32px;
+  font-weight: bold;
+  margin: 0;
+  color: var(--color-navy-blue);
 } 

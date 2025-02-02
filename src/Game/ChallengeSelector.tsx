@@ -1,7 +1,9 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { TuringTape } from './TuringTape';
 import './ChallengeSelector.css';
+import { api } from '../../convex/_generated/api';
+import { useQuery } from 'convex/react';
 
 const LEVELS_PER_LINE = 5;
 const LEVEL_LINES = 5;
@@ -15,6 +17,8 @@ function leftHalf(i: number): number {
 
 export function ChallengeSelector() {
   const navigate = useNavigate();
+
+  const challengeAttempts = useQuery(api.challengeAttempts.getChallengeAttempts);
   
   // State for selected indices in each row
   const [selectedIndices, setSelectedIndices] = useState<number[]>(() => 
@@ -23,12 +27,8 @@ export function ChallengeSelector() {
     )
   );
 
-  const [isAnimating, setIsAnimating] = useState(true);
-
   // Animation function
   const animate = useCallback(() => {
-    if (!isAnimating) return;
-
     setSelectedIndices(prev => prev.map(index => {
       if (index === 0) {
         return 1;
@@ -38,25 +38,21 @@ export function ChallengeSelector() {
         return index + (Math.random() < 0.5 ? -1 : 1);
       }
     }));
-  }, [isAnimating]);
+  }, [setSelectedIndices]);
 
   // Start/stop animation on mount/unmount
   useEffect(() => {
-    if (!isAnimating) return;
-    
     const interval = setInterval(animate, 1000);
     return () => clearInterval(interval);
-  }, [animate, isAnimating]);
-
-  // Stop animation when component unmounts
-  useEffect(() => {
-    return () => setIsAnimating(false);
-  }, []);
+  }, [animate]);
 
   const handleChallengeSelect = useCallback((index: number) => {
-    setIsAnimating(false);
     navigate(`/challenge/${index}`);
   }, [navigate]);
+
+  function isChallengeCompleted(index: number) {
+    return challengeAttempts?.some(attempt => attempt.index === index && attempt.completed);
+  }
 
   return (
     <div className="challenge-selector">
@@ -65,18 +61,16 @@ export function ChallengeSelector() {
       <div className="challenge-grid">
         {Array.from({ length: LEVEL_LINES }).map((_, rowIndex) => (
           <div key={rowIndex} className="challenge-row">
-            <div className="tape-section">
-              <TuringTape
-                characters={Array.from({ length: LEVELS_PER_LINE }, (_, i) => 
-                  `${rowIndex * LEVELS_PER_LINE + i}`
-                )}
-                selectedIndex={selectedIndices[rowIndex]}
-                onTapCell={(index) => {
-                  handleChallengeSelect(rowIndex * LEVELS_PER_LINE + index);
-                }}
-                state=""
-              />
-            </div>
+            <TuringTape
+              characters={Array.from({ length: LEVELS_PER_LINE }, (_, i) => 
+                `${rowIndex * LEVELS_PER_LINE + i}` + (isChallengeCompleted(rowIndex * LEVELS_PER_LINE + i) ? " ✅" : "")
+              )}
+              selectedIndex={selectedIndices[rowIndex]}
+              onTapCell={(index) => {
+                handleChallengeSelect(rowIndex * LEVELS_PER_LINE + index);
+              }}
+              state=""
+            />
           </div>
         ))}
       </div>

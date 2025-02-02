@@ -1,4 +1,3 @@
-import React from 'react';
 import { Rule, Direction } from '../lib/TuringMachine';
 import './RuleDisplay.css';
 

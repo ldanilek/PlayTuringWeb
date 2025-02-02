@@ -2,10 +2,10 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 20px;
   background-color: var(--color-off-white);
   color: var(--color-navy-blue);
-  min-height: 100vh;
+  height: 100vh;
+  overflow-y: auto;
 }
 
 .challenge-selector-title {
@@ -18,9 +18,8 @@
 .challenge-grid {
   display: flex;
   flex-direction: column;
-  gap: 80px;
+  gap: 10px;
   width: 100%;
-  max-width: 800px;
 }
 
 .challenge-row {

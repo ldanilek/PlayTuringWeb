@@ -48,8 +48,8 @@
 .tape-container {
   display: flex;
   gap: var(--turing-cell-gap);
-  padding: 8px;
+  padding: 3px;
   width: 100%;
-  margin-bottom: 48px; /* Make space for the head */
+  margin-bottom: 40px; /* Make space for the head */
   position: relative; /* Allow absolute positioning of children */
 }

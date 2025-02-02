@@ -94,6 +94,270 @@ export function generateChallenge(index: number): Challenge {
         requiresEndState: false
       };
 
+    case 3:
+      return {
+        name: "All On",
+        startTape: ['0', '1', '0', '0', '1', '0', '1'],
+        goalTape: ['1', '1', '1', '1', '1', '1', '1'],
+        startIndex: 0,
+        startState: 0,
+        maxState: 0,
+        allowedCharacters: ['0', '1'],
+        hints: ["Two rules: 0→1 and 1→1"],
+        requiresEndState: false
+      };
+
+    case 4: // Alternator
+      const sequence = ['0', '1', '0', '1', '0', '1', '0'];
+      return {
+        name: "Alternator",
+        startTape: createBlanks(sequence.length),
+        goalTape: sequence,
+        startIndex: sequence.length - 1,
+        startState: 0,
+        maxState: 1,
+        allowedCharacters: [BLANK, '0', '1'],
+        hints: [
+          "Now you need two states",
+          "Alternate between states q0 and q1",
+          "q0 means write \"0\", q1 means write \"1\""
+        ],
+        requiresEndState: false
+      };
+
+    case 5: // Sequencer
+      return {
+        name: "Sequencer",
+        startTape: createBlanks(9),
+        goalTape: ['0', BLANK, '1', BLANK, '0', BLANK, '1', BLANK, '0'],
+        startIndex: 0,
+        startState: 0,
+        maxState: 3,
+        allowedCharacters: [BLANK, '0', '1'],
+        hints: [
+          "Try writing one rule at a time",
+          "Play the machine to see what happens",
+          "Loop through your four states"
+        ],
+        requiresEndState: false
+      };
+
+    case 6: // Bit flipper
+      const flipperBits = createArrayFromArray(getRandomInt(5, 12), ['0', '1']);
+      const flipped = flipperBits.map(c => c === '0' ? '1' : '0');
+      return {
+        name: "Bit flipper",
+        startTape: flipperBits,
+        goalTape: flipped,
+        startIndex: 0,
+        startState: 0,
+        maxState: 0,
+        allowedCharacters: ['0', '1'],
+        hints: [
+          "Ones become zeros",
+          "Zeros become ones"
+        ],
+        requiresEndState: false
+      };
+
+    case 7: // There and back
+      return {
+        name: "There and back",
+        startTape: [BLANK, '1', '1', '1', '1', '1', BLANK],
+        goalTape: [BLANK, '0', '0', '0', '0', '0', BLANK],
+        startIndex: 3,
+        startState: 0,
+        maxState: 0,
+        allowedCharacters: [BLANK, '0', '1'],
+        hints: [
+          "You only have one state",
+          "Ones and zeros become zeros",
+          "Blanks remain blank",
+          "Experiment with directions"
+        ],
+        requiresEndState: false
+      };
+
+    case 8: // Increment
+      const toIncrement = createArrayFromArray(5, ['0', '1']);
+      const incremented = intToBinary(binaryToInt(toIncrement) + 1);
+      const padLength = Math.max(toIncrement.length, incremented.length);
+      return {
+        name: "Increment",
+        startTape: makeTape([BLANK], toIncrement.length < padLength ? [...createBlanks(padLength - toIncrement.length), ...toIncrement] : toIncrement, [BLANK]),
+        goalTape: makeTape([BLANK], incremented.length < padLength ? [...createBlanks(padLength - incremented.length), ...incremented] : incremented, [BLANK]),
+        startIndex: padLength,
+        startState: 0,
+        maxState: 2,
+        allowedCharacters: [BLANK, '0', '1'],
+        hints: [
+          "Start from the right",
+          "Carry the one"
+        ],
+        requiresEndState: false
+      };
+
+    case 9: // Decrement
+      const toDecrement = intToBinary(getRandomInt(2, 31));
+      const decremented = intToBinary(binaryToInt(toDecrement) - 1);
+      return {
+        name: "Decrement",
+        startTape: makeTape([BLANK], toDecrement, [BLANK]),
+        goalTape: makeTape([BLANK], decremented, [BLANK]),
+        startIndex: toDecrement.length,
+        startState: 0,
+        maxState: 2,
+        allowedCharacters: [BLANK, '0', '1'],
+        hints: [
+          "Start from the right",
+          "Borrow from the left"
+        ],
+        requiresEndState: false
+      };
+
+    case 10: // Zero
+      const toZero = createArrayFromArray(getRandomInt(3, 8), ['0', '1']);
+      return {
+        name: "Zero",
+        startTape: makeTape([BLANK], toZero, [BLANK]),
+        goalTape: makeTape([BLANK], createBlanks(toZero.length), [BLANK]),
+        startIndex: 0,
+        startState: 0,
+        maxState: 1,
+        allowedCharacters: [BLANK, '0', '1'],
+        hints: [
+          "Two states: searching and zeroing",
+          "First find a one",
+          "Then zero everything"
+        ],
+        requiresEndState: true
+      };
+
+    case 11: // One counter
+      const countOnesInput = createArrayFromArray(getRandomInt(3, 8), ['0', '1']);
+      const numOnes = countOnesInput.filter(b => b === '1').length;
+      const countResult = intToBinary(numOnes);
+      return {
+        name: "One counter",
+        startTape: makeTape([BLANK], countOnesInput, [BLANK], createBlanks(countResult.length), [BLANK]),
+        goalTape: makeTape([BLANK], createBlanks(countOnesInput.length), [BLANK], countResult, [BLANK]),
+        startIndex: 0,
+        startState: 0,
+        maxState: 3,
+        allowedCharacters: [BLANK, '0', '1'],
+        hints: [
+          "Count in binary",
+          "Increment the counter for each one",
+          "Use states to remember carries"
+        ],
+        requiresEndState: true
+      };
+
+    case 12: // Sort
+      const toSort = createArrayFromArray(getRandomInt(4, 8), ['0', '1']);
+      const sorted = [...toSort].sort();
+      return {
+        name: "Sort",
+        startTape: makeTape([BLANK], toSort, [BLANK]),
+        goalTape: makeTape([BLANK], sorted, [BLANK]),
+        startIndex: 0,
+        startState: 0,
+        maxState: 3,
+        allowedCharacters: [BLANK, '0', '1', 'a', 'b'],
+        hints: [
+          "Bubble sort works well here",
+          "Compare adjacent digits",
+          "Swap when out of order"
+        ],
+        requiresEndState: true
+      };
+
+    case 13: // Multiply
+      const firstFactor = getRandomInt(2, 6);
+      const secondFactor = getRandomInt(2, 6);
+      const firstFactorBits = intToBinary(firstFactor);
+      const secondFactorBits = intToBinary(secondFactor);
+      const productBits = intToBinary(firstFactor * secondFactor);
+      return {
+        name: "Multiply",
+        startTape: makeTape([BLANK], firstFactorBits, ['x'], secondFactorBits, ['='], createBlanks(productBits.length), [BLANK]),
+        goalTape: makeTape([BLANK], createBlanks(firstFactorBits.length), [BLANK], createBlanks(secondFactorBits.length), [BLANK], productBits, [BLANK]),
+        startIndex: 0,
+        startState: 0,
+        maxState: 8,
+        allowedCharacters: [BLANK, '0', '1', 'x', '=', 'a', 'b', 'c'],
+        hints: [
+          "Add the first number to itself",
+          "As many times as the second number",
+          "Use temporary space"
+        ],
+        requiresEndState: true
+      };
+
+    case 14: // Divide
+      const dividend = getRandomInt(1, 31);
+      const divisor = getRandomInt(1, 6);
+      const quotient = Math.floor(dividend / divisor);
+      const remainder = dividend % divisor;
+      const dividendBits = intToBinary(dividend);
+      const divisorBits = intToBinary(divisor);
+      const quotientBits = intToBinary(quotient);
+      const remainderBits = intToBinary(remainder);
+      return {
+        name: "Divide",
+        startTape: makeTape([BLANK], dividendBits, ['÷'], divisorBits, ['='], createBlanks(quotientBits.length), ['r'], createBlanks(remainderBits.length), [BLANK]),
+        goalTape: makeTape([BLANK], createBlanks(dividendBits.length), [BLANK], createBlanks(divisorBits.length), [BLANK], quotientBits, [BLANK], remainderBits, [BLANK]),
+        startIndex: 0,
+        startState: 0,
+        maxState: 8,
+        allowedCharacters: [BLANK, '0', '1', '÷', '=', 'r', 'a', 'b', 'c'],
+        hints: [
+          "Repeatedly subtract the divisor",
+          "Count how many times you can subtract",
+          "What's left is the remainder"
+        ],
+        requiresEndState: true
+      };
+
+    case 15: // Power
+      const base = getRandomInt(2, 4);
+      const exponent = getRandomInt(2, 3);
+      const baseBits = intToBinary(base);
+      const exponentBits = intToBinary(exponent);
+      const resultBits = intToBinary(Math.pow(base, exponent));
+      return {
+        name: "Power",
+        startTape: makeTape([BLANK], baseBits, ['^'], exponentBits, ['='], createBlanks(resultBits.length), [BLANK]),
+        goalTape: makeTape([BLANK], createBlanks(baseBits.length), [BLANK], createBlanks(exponentBits.length), [BLANK], resultBits, [BLANK]),
+        startIndex: 0,
+        startState: 0,
+        maxState: 8,
+        allowedCharacters: [BLANK, '0', '1', '^', '=', 'a', 'b', 'c'],
+        hints: [
+          "Multiply the base by itself",
+          "As many times as the exponent",
+          "Use your multiply algorithm"
+        ],
+        requiresEndState: true
+      };
+
+    case 16: // Bit shifter
+      const toShiftBits = createArrayFromArray(getRandomInt(4, 8), ['0', '1']);
+      return {
+        name: "Bit shifter",
+        startTape: makeTape([BLANK], toShiftBits, ['>', '>', '>'], [BLANK]),
+        goalTape: makeTape([BLANK, BLANK, BLANK], toShiftBits, [BLANK]),
+        startIndex: 0,
+        startState: 0,
+        maxState: 5,
+        allowedCharacters: [BLANK, '0', '1', '>'],
+        hints: [
+          "Subtract one from the right side",
+          "Shift digits to the right"
+        ],
+        requiresEndState: true
+      };
+
     case 17: // Copier
       const toDuplicate = createArrayFromArray(6, ['0', '1']);
       const blanks = createBlanks(toDuplicate.length);
@@ -268,6 +532,6 @@ export function generateChallenge(index: number): Challenge {
       };
 
     default:
-      return generateChallenge(0); // Default to Getting Started
+      throw new Error(`Challenge ${index} not found`);
   }
 } 

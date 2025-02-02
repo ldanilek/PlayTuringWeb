@@ -1,5 +1,5 @@
-import React, { useState, useCallback, useMemo } from 'react';
-import { Rule, Direction, State, BLANK } from '../lib/TuringMachine';
+import { useState, useCallback, useMemo } from 'react';
+import { Rule, Direction, State } from '../lib/TuringMachine';
 import { RuleDisplay } from './RuleDisplay';
 import { TuringTape } from './TuringTape';
 import './RuleEditor.css';
@@ -24,9 +24,9 @@ export function RuleEditor({
   // State management
   const [startingState, setStartingState] = useState<State>(initialRule?.state ?? 0);
   const [endState, setEndState] = useState<State>(initialRule?.newState ?? 0);
-  const [readingCharacter, setReadingCharacter] = useState<string>(initialRule?.read ?? BLANK);
-  const [writeCharacter, setWriteCharacter] = useState<string>(initialRule?.write ?? BLANK);
-  const [direction, setDirection] = useState<Direction>(initialRule?.direction ?? Direction.Right);
+  const [readingCharacter, setReadingCharacter] = useState<string>(initialRule?.read ?? possibleCharacters[0]);
+  const [writeCharacter, setWriteCharacter] = useState<string>(initialRule?.write ?? possibleCharacters[0]);
+  const [direction, setDirection] = useState<Direction>(initialRule?.direction ?? Direction.Left);
 
   // Current rule based on state
   const currentRule: Rule = useMemo(() => ({

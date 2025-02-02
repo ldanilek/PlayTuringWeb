@@ -1,42 +1,99 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { TuringTape } from './TuringTape';
 import './Challenge.css';
 import { 
   Tape, 
-  BLANK, 
-  getRandomInt, 
-  createBlanks, 
-  intToBinary, 
-  makeTape, 
   generateChallenge
 } from '@/lib/Challenges';
 import { Direction, Rule } from '@/lib/TuringMachine';
 import { RuleDisplay } from './RuleDisplay';
 import { RuleEditor } from './RuleEditor';
+import { api } from '../../convex/_generated/api';
+import { useMutation, useQuery } from 'convex/react';
 
 interface ChallengeProps {
   index: number;
   onComplete?: () => void;
 }
 
-export function Challenge({ index, onComplete }: ChallengeProps) {
-  const challenge = useMemo(() => generateChallenge(index), [index]);
+export function Challenge({ index: challengeIndex, onComplete }: ChallengeProps) {
+  const markChallengeCompleted = useMutation(api.challengeAttempts.challengeCompleted);
+  const [reloadCount, setReloadCount] = useState(0);
+  const challenge = useMemo(() => generateChallenge(challengeIndex), [challengeIndex, reloadCount]);
 
   const [tape, setTape] = useState<Tape>(challenge.startTape.slice());
   const [headPosition, setHeadPosition] = useState(challenge.startIndex);
   const [currentState, setCurrentState] = useState(challenge.startState);
-  const [rules, setRules] = useState<Rule[]>([]);
   const [isPlaying, setIsPlaying] = useState(false);
   const [speed, setSpeed] = useState(1);
   const [alert, setAlert] = useState<string | null>(null);
   const goalTape = useMemo(() => challenge.goalTape.slice(), [challenge.goalTape]);
   const [isRuleEditorOpen, setIsRuleEditorOpen] = useState(false);
-  const [editingRuleIndex, setEditingRuleIndex] = useState<number | null>(null);
+  const [editingRule, setEditingRule] = useState<Rule | undefined>(undefined);
+
+  const rulesRaw = useQuery(api.rules.getRules, { challengeIndex });
+  const rules: Rule[] | undefined = useMemo(() => rulesRaw?.map(r => ({
+    state: r.state,
+    read: r.read,
+    newState: r.newState,
+    write: r.write,
+    direction: r.direction === 'left' ? Direction.Left : Direction.Right,
+  })), [rulesRaw]);
+  const saveRule = useMutation(api.rules.createRule).withOptimisticUpdate((localStore, args) => {
+    const prev = localStore.getQuery(api.rules.getRules, { challengeIndex: args.challengeIndex });
+    if (prev === undefined) {
+      throw new Error('Rules are not loaded');
+    }
+    const rule = args.rule;
+    const replacingRule = args.replacingRule;
+    const matchingRuleIndex = prev.findIndex(r => r.state === rule.state && r.read === rule.read);
+    let newRules = prev;
+    if (replacingRule !== undefined && matchingRuleIndex !== -1) {
+      // Edit existing rule, delete matching
+      newRules = prev
+        .map((r, i) => i === matchingRuleIndex ? rule : r)
+        .filter(r => r !== null);
+    } else if (replacingRule !== undefined) {
+      // Replace rule being edited
+      newRules = prev.map((r, i) => i === matchingRuleIndex ? rule : r);
+    } else if (matchingRuleIndex !== -1) {
+      // Replace matching rule
+      newRules = prev.map((r, i) => i === matchingRuleIndex ? rule : r);
+    } else {
+      // Add new rule
+      newRules = [rule, ...prev];
+    }
+    localStore.setQuery(api.rules.getRules, { challengeIndex: args.challengeIndex }, newRules);
+  });
+  const deleteRule = useMutation(api.rules.deleteRule).withOptimisticUpdate((localStore, args) => {
+    const prev = localStore.getQuery(api.rules.getRules, { challengeIndex: args.challengeIndex });
+    if (prev === undefined) {
+      throw new Error('Rules are not loaded');
+    }
+    const newRules = prev.filter((rule) => rule.state !== args.rule.state || rule.read !== args.rule.read);
+    localStore.setQuery(api.rules.getRules, { challengeIndex: args.challengeIndex }, newRules);
+  });
+
+  const startOver = useCallback(() => {
+    setTape(challenge.startTape.slice());
+    setHeadPosition(challenge.startIndex);
+    setCurrentState(challenge.startState);
+  }, [challenge]);
+
+  useEffect(() => {
+    startOver();
+  }, [challenge]);
 
   const step = useCallback(() => {
-    if (!isPlaying) return;
+    if (headPosition < 0 || headPosition >= tape.length) {
+      throw new Error("Head position out of bounds");
+    }
+    if (rules === undefined) {
+      setAlert('Loading rules...');
+      return;
+    }
 
-    const currentChar = tape[headPosition] || BLANK;
+    const currentChar = tape[headPosition];
     const rule = rules.find(r => 
       r.state === currentState && 
       r.read === currentChar
@@ -52,6 +109,19 @@ export function Challenge({ index, onComplete }: ChallengeProps) {
     const newTape = [...tape];
     newTape[headPosition] = rule.write;
     const newHeadPosition = rule.direction === Direction.Right ? headPosition + 1 : headPosition - 1;
+
+    // Check if goal is reached
+    if (JSON.stringify(newTape) === JSON.stringify(goalTape)) {
+      setTape(newTape);
+      setCurrentState(rule.newState);
+      // setHeadPosition(newHeadPosition);
+      setIsPlaying(false);
+      setAlert('Success!');
+      void markChallengeCompleted({ challengeIndex });
+      onComplete?.();
+      return;
+    }
+
     if (newHeadPosition < 0 || newHeadPosition >= newTape.length) {
       setIsPlaying(false);
       setAlert('Out of bounds!');
@@ -62,12 +132,6 @@ export function Challenge({ index, onComplete }: ChallengeProps) {
     setCurrentState(rule.newState);
     setHeadPosition(newHeadPosition);
 
-    // Check if goal is reached
-    if (JSON.stringify(newTape) === JSON.stringify(goalTape)) {
-      setIsPlaying(false);
-      setAlert('Success!');
-      onComplete?.();
-    }
   }, [isPlaying, tape, headPosition, currentState, rules, goalTape, onComplete]);
 
   useEffect(() => {
@@ -77,40 +141,41 @@ export function Challenge({ index, onComplete }: ChallengeProps) {
   }, [isPlaying, speed, step]);
 
   const handleAddRule = useCallback(() => {
-    setEditingRuleIndex(null);
+    setEditingRule(undefined);
     setIsRuleEditorOpen(true);
-  }, [setEditingRuleIndex, setIsRuleEditorOpen]);
+    setAlert(null);
+  }, [setEditingRule, setIsRuleEditorOpen]);
 
-  const handleEditRule = useCallback((index: number) => {
-    setEditingRuleIndex(index);
+  const handleEditRule = useCallback((editAtIndex: number) => {
+    if (rules === undefined) {
+      throw new Error('Rules are not loaded');
+    }
+    setEditingRule(rules[editAtIndex]);
     setIsRuleEditorOpen(true);
-  }, [setEditingRuleIndex, setIsRuleEditorOpen]);
+    setAlert(null);
+  }, [setEditingRule, setIsRuleEditorOpen, rules]);
 
   const handleSaveRule = useCallback((rule: Rule) => {
-    setRules(prev => {
-      if (editingRuleIndex !== null) {
-        // Edit existing rule
-        return prev.map((r, i) => i === editingRuleIndex ? rule : r);
-      } else {
-        // Add new rule
-        return [...prev, rule];
-      }
-    });
+    void saveRule({ challengeIndex, rule, replacingRule: editingRule });
     setIsRuleEditorOpen(false);
-    setEditingRuleIndex(null);
-  }, [setRules, editingRuleIndex, setIsRuleEditorOpen, setEditingRuleIndex]);
+    setEditingRule(undefined);
+    startOver();
+  }, [setEditingRule, setIsRuleEditorOpen, startOver, saveRule, editingRule]);
 
   const handleCancelRule = useCallback(() => {
     setIsRuleEditorOpen(false);
-    setEditingRuleIndex(null);
-  }, [setEditingRuleIndex, setIsRuleEditorOpen]);
+    setEditingRule(undefined);
+  }, [setEditingRule, setIsRuleEditorOpen]);
 
-  const handleDeleteRule = useCallback((index: number) => {
-    setRules(prev => prev.filter((_, i) => i !== index));
-  }, [setRules]);
+  const handleDeleteRule = useCallback((deleteAtIndex: number) => {
+    if (rules === undefined) {
+      throw new Error('Rules are not loaded');
+    }
+    void deleteRule({ challengeIndex, rule: rules[deleteAtIndex] });
+  }, [deleteRule, rules]);
   
   const currentRuleNeeded: Rule | undefined = useMemo(() => {
-    const existingRule = rules.find(r => r.state === currentState && r.read === tape[headPosition]);
+    const existingRule = rules?.find(r => r.state === currentState && r.read === tape[headPosition]);
     if (existingRule) {
       return undefined;
     }
@@ -119,14 +184,16 @@ export function Challenge({ index, onComplete }: ChallengeProps) {
       read: tape[headPosition],
       newState: currentState,
       write: tape[headPosition],
-      direction: Direction.Right,
+      direction: Direction.Left,
     };
   }, [rules, currentState, tape, headPosition]);
+
+  const [hintIndex, setHintIndex] = useState<number | null>(0);
 
   return (
     <div className="challenge">
       <div className="challenge-header">
-        <h2 className="challenge-title">Challenge {index}</h2>
+        <h2 className="challenge-title">Challenge {challengeIndex}</h2>
         <div className="control-buttons">
           <button 
             className="button"
@@ -141,6 +208,29 @@ export function Challenge({ index, onComplete }: ChallengeProps) {
           >
             Step
           </button>
+          <button
+            className="button"
+            onClick={() => {
+              if (hintIndex === null) {
+                setHintIndex(0);
+                setAlert(null);
+              } else if (hintIndex < challenge.hints.length) {
+                setAlert(challenge.hints[hintIndex]);
+                setHintIndex(hintIndex + 1);
+              } else {
+                setAlert("No more hints, you're on your own!");
+                setHintIndex(null);
+              }
+            }}
+          >
+            Hint
+          </button>
+          <button 
+            className="button"
+            onClick={() => setReloadCount(reloadCount + 1)}
+          >
+            Reload
+          </button>
           <button 
             className="button"
             onClick={() => setSpeed(prev => prev * 2)}
@@ -153,14 +243,12 @@ export function Challenge({ index, onComplete }: ChallengeProps) {
       <h1>{challenge.name}</h1>
 
       <div className="challenge-content">
-        <div className="tape-container">
-          <TuringTape
-            characters={tape}
-            selectedIndex={headPosition}
-            onTapCell={() => {}}
-            state={`q${currentState}`}
-          />
-        </div>
+        <TuringTape
+          characters={tape}
+          selectedIndex={headPosition}
+          onTapCell={() => {}}
+          state={`q${currentState}`}
+        />
 
         <div className="goal-tape">
           <h3>Goal</h3>
@@ -171,31 +259,31 @@ export function Challenge({ index, onComplete }: ChallengeProps) {
         </div>
 
         <div className="rule-container">
-          {rules.map((rule, index) => (
-            <div key={index} className="rule">
-              <RuleDisplay rule={rule} onClick={() => handleEditRule(index)} />
-              <div className="rule-actions">
-                <button 
-                  className="rule-button"
-                  onClick={() => handleEditRule(index)}
-                >
-                  Edit
-                </button>
-                <button 
-                  className="rule-button delete"
-                  onClick={() => handleDeleteRule(index)}
-                >
-                  Delete
-                </button>
-              </div>
-            </div>
-          ))}
           <button 
             className="button add-rule"
             onClick={handleAddRule}
           >
             Add Rule
           </button>
+          {rules?.map((rule, ruleIndex) => (
+            <div key={ruleIndex} className="rule">
+              <RuleDisplay rule={rule} onClick={() => handleEditRule(ruleIndex)} />
+              <div className="rule-actions">
+                <button 
+                  className="rule-button"
+                  onClick={() => handleEditRule(ruleIndex)}
+                >
+                  Edit
+                </button>
+                <button 
+                  className="rule-button delete"
+                  onClick={() => handleDeleteRule(ruleIndex)}
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 
@@ -209,12 +297,12 @@ export function Challenge({ index, onComplete }: ChallengeProps) {
         <div className="modal-overlay">
           <div className="modal-content">
             <RuleEditor
-              possibleCharacters={[BLANK, '0', '1']}
-              maxState={3}
-              hasFinalState={true}
+              possibleCharacters={challenge.allowedCharacters}
+              maxState={challenge.maxState}
+              hasFinalState={challenge.requiresEndState}
               onSave={handleSaveRule}
               onCancel={handleCancelRule}
-              initialRule={editingRuleIndex !== null ? rules[editingRuleIndex] : currentRuleNeeded}
+              initialRule={editingRule ?? currentRuleNeeded}
             />
           </div>
         </div>

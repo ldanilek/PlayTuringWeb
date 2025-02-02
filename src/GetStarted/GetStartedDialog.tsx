@@ -1,150 +1,60 @@
-import { ConvexLogo } from "@/GetStarted/ConvexLogo";
-import { Code } from "@/components/Code";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Dialog,
-  DialogClose,
   DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import {
-  CodeIcon,
-  ExternalLinkIcon,
-  MagicWandIcon,
-  PlayIcon,
-  StackIcon,
-} from "@radix-ui/react-icons";
 import { ReactNode } from "react";
+import './GetStartedDialog.css';
 
 export function GetStartedDialog({ children }: { children: ReactNode }) {
   return (
     <Dialog>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="max-w-2xl max-h-[calc(100vh-8rem)] grid-rows-[1fr_auto]">
-        <DialogHeader>
-          <DialogTitle className="flex items-baseline gap-2">
-            Your app powered by <ConvexLogo width={69} height={11} />
-          </DialogTitle>
-        </DialogHeader>
-        <GetStartedContent />
-        <DialogFooter>
-          <DialogClose asChild>
-            <Button variant="secondary">Got it</Button>
-          </DialogClose>
-        </DialogFooter>
+      <DialogContent className="dialog-content max-w-2xl max-h-[calc(100vh-8rem)] grid-rows-[1fr_auto] overflow-y-auto">
+        <div className="flex flex-col gap-4">
+          <h1>About Turing Machines</h1>
+        <p>
+          A turing machine is the ultimate hypothetical computer, 
+          but it operates under simple principles. 
+          It has some states (q0, q1, q2, ...) and it reads from a tape 
+          with some characters (-, 0, 1, ...).
+        </p>
+        <p>
+          At each step, the machine follows rules. 
+          Based on the current state and the current character, 
+          the machine knows what rule to use. 
+          The rule tells it to write a new character, 
+          go to a new state, and move left or right on the tape.
+        </p>
+        <p>
+          Using certain rules, a turing machine could do anything a supercomputer can do, 
+          but programming that machine would be a hassle. 
+          Some of the small procedures, like adding two numbers, 
+          are simple enough to program. 
+          Play Turing presents these simple programming challenges as levels, 
+          so the player can learn how Turing Machines work 
+          and develop algorithmic thinking.
+        </p>
+        </div>
+        <div className="flex flex-col gap-4">
+          <h1>How to play</h1>
+          <p>
+            Each level wants you to write a set of rules that will transform the starting tape into the goal tape.
+          </p>
+          <p>
+            There is a pattern to the change, described in the title and any hints. Hit "Reload" to randomly generate a new challenge with the same pattern.
+            You need to write rules that will work for any challenge with that pattern.
+          </p>
+          <p>
+            For example, challenge 6 is "Bit flipper", the challenge is to write a set of rules that will flip all the 1s to 0s and vice versa.
+            The rules to do so are simple (and described in the hints):
+          </p>
+          <p>q0,0 &rarr; q0,1,R</p>
+          <p>q0,1 &rarr; q0,0,R</p>
+          <p>Some challenges have a designated end state (e.g. if the maximum start state is q5 and the maximum final state is q6) and if it does you must finish in that state.</p>
+          <p>Some challenges are difficult, but all are possible.</p>
+        </div>
       </DialogContent>
     </Dialog>
-  );
-}
-
-function GetStartedContent() {
-  return (
-    <div className="overflow-y-auto">
-      <p className="text-muted-foreground mb-2">
-        This template is a starting point for building your fullstack web
-        application.
-      </p>
-      <div className="grid gap-4 md:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex gap-2">
-              <PlayIcon /> Play with the app
-            </CardTitle>
-          </CardHeader>
-          <CardContent>Close this dialog to see the app in action.</CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex gap-2">
-              <StackIcon /> Inspect your database
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            The{" "}
-            <a
-              href="https://dashboard.convex.dev/"
-              className="underline underline-offset-4 hover:no-underline"
-              target="_blank"
-            >
-              Convex dashboard
-            </a>{" "}
-            is already open in another window.
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex gap-2">
-              <CodeIcon />
-              Change the backend
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            Edit <Code>convex/messages.ts</Code> to change the backend
-            functionality.
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex gap-2">
-              <MagicWandIcon />
-              Change the frontend
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            Edit <Code>src/App.tsx</Code> to change your frontend.
-          </CardContent>
-        </Card>
-      </div>
-      <div>
-        <h2 className="mt-6 mb-3 font-semibold">Helpful resources</h2>
-        <div className="grid md:grid-cols-2 gap-3">
-          <Resource title="Convex Docs" href="https://docs.convex.dev/home">
-            Read comprehensive documentation for all Convex features.
-          </Resource>
-          <Resource title="Stack articles" href="https://stack.convex.dev/">
-            Learn about best practices, use cases, and more from a growing
-            collection of articles, videos, and walkthroughs.
-          </Resource>
-          <Resource title="Discord" href="https://www.convex.dev/community">
-            Join our developer community to ask questions, trade tips & tricks,
-            and show off your projects.
-          </Resource>
-          <Resource title="Search them all" href="https://search.convex.dev/">
-            Get unblocked quickly by searching across the docs, Stack, and
-            Discord chats.
-          </Resource>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function Resource({
-  title,
-  children,
-  href,
-}: {
-  title: string;
-  children: ReactNode;
-  href: string;
-}) {
-  return (
-    <Button
-      asChild
-      variant="secondary"
-      className="flex h-auto flex-col items-start justify-start gap-2 whitespace-normal p-4 font-normal"
-    >
-      <a href={href} target="_blank">
-        <div className="text-sm font-bold flex items-center gap-1">
-          {title}
-          <ExternalLinkIcon />
-        </div>
-        <div className="text-muted-foreground">{children}</div>
-      </a>
-    </Button>
   );
 }
