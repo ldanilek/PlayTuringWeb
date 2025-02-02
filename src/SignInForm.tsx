@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { useAuthActions } from "@convex-dev/auth/react";
 import { GitHubLogoIcon } from "@radix-ui/react-icons";
 import { useState } from "react";
+import { SignInMethodDivider } from "./components/SignInMethodDivider";
 
 export function SignInForm() {
   const [step, setStep] = useState<"signIn" | "linkSent">("signIn");
@@ -15,6 +16,8 @@ export function SignInForm() {
               Sign in or create an account
             </h2>
             <SignInWithGitHub />
+            <SignInMethodDivider />
+            <SignInFormAnonymous />
           </>
         ) : (
           <>
@@ -47,5 +50,26 @@ export function SignInWithGitHub() {
     >
       <GitHubLogoIcon className="mr-2 h-4 w-4" /> GitHub
     </Button>
+  );
+}
+
+export function SignInFormAnonymous() {
+  const { signIn } = useAuthActions();
+  return (
+    <div className="max-w-[384px] mx-auto flex flex-col gap-4">
+      <>
+        <h2 className="font-semibold text-2xl tracking-tight">
+          Start a guest session
+        </h2>
+        <Button
+          type="submit"
+          onClick={() => {
+            void signIn("anonymous");
+          }}
+        >
+          Sign in
+        </Button>
+      </>
+    </div>
   );
 }
