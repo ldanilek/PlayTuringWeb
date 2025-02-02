@@ -5,12 +5,13 @@ import {
   Tape, 
   generateChallenge
 } from '@/lib/Challenges';
-import { calculateAccuracy, Direction, Rule } from '@/lib/TuringMachine';
+import { calculateAccuracy, Direction, mapRule } from '../lib/TuringMachine';
 import { RuleDisplay } from './RuleDisplay';
 import { RuleEditor } from './RuleEditor';
 import { api } from '../../convex/_generated/api';
 import { useMutation, useQuery } from 'convex/react';
 import { useNavigate } from 'react-router-dom';
+import { Rule } from '../lib/TuringMachine';
 
 interface ChallengeProps {
   index: number;
@@ -37,13 +38,7 @@ export function Challenge({ index: challengeIndex, onComplete }: ChallengeProps)
   const [isSuccess, setIsSuccess] = useState(false);
 
   const rulesRaw = useQuery(api.rules.getRules, { challengeName });
-  const rules: Rule[] | undefined = useMemo(() => rulesRaw?.map(r => ({
-    state: r.state,
-    read: r.read,
-    newState: r.newState,
-    write: r.write,
-    direction: r.direction === 'left' ? Direction.Left : Direction.Right,
-  })), [rulesRaw]);
+  const rules: Rule[] | undefined = useMemo(() => rulesRaw?.map(mapRule), [rulesRaw]);
   const saveRule = useMutation(api.rules.createRule).withOptimisticUpdate((localStore, args) => {
     const prev = localStore.getQuery(api.rules.getRules, { challengeName: args.challengeName });
     if (prev === undefined) {

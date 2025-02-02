@@ -580,3 +580,14 @@ export function generateChallenge(index: number): Challenge {
       throw new Error(`Challenge ${index} not found`);
   }
 } 
+
+export function challengeNameToIndex(name: string): number {
+  const MAX_CHALLENGE_INDEX = 24;
+
+  for (let i = 0; i <= MAX_CHALLENGE_INDEX; i++) {
+    if (generateChallenge(i).name === name) {
+      return i;
+    }
+  }
+  throw new Error(`Challenge ${name} not found`);
+}

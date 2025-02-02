@@ -18,6 +18,7 @@ import type * as challengeAttempts from "../challengeAttempts.js";
 import type * as http from "../http.js";
 import type * as rules from "../rules.js";
 import type * as users from "../users.js";
+import type * as util from "../util.js";
 
 /**
  * A utility for referencing Convex functions in your app's API.
@@ -33,6 +34,7 @@ declare const fullApi: ApiFromModules<{
   http: typeof http;
   rules: typeof rules;
   users: typeof users;
+  util: typeof util;
 }>;
 export declare const api: FilterApi<
   typeof fullApi,

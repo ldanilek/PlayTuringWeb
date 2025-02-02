@@ -2,7 +2,8 @@ import { v } from "convex/values";
 import { ruleValidator } from "./schema";
 import { mutation, query } from "./_generated/server";
 import { getAuthUserId } from "@convex-dev/auth/server";
-import { getChallengeAttempt, getOrCreateChallengeAttempt } from "./challengeAttempts";
+import { getOrCreateChallengeAttempt } from "./util";
+import { getRulesHandler } from "./util";
 
 export const createRule = mutation({
   args: {
@@ -64,17 +65,5 @@ export const getRules = query({
   args: {
     challengeName: v.string(),
   },
-  handler: async (ctx, args) => {
-    const challengeAttemptId = await getChallengeAttempt(ctx, args.challengeName);
-    if (!challengeAttemptId) {
-      return [];
-    }
-
-    const userId = (await getAuthUserId(ctx))!;
-
-    const rules = await ctx.db.query("rules")
-      .withIndex("by_user", (q) => q.eq("userId", userId).eq("challengeAttempt", challengeAttemptId))
-      .collect();
-    return rules.map(r => r.rule);
-  },
+  handler: getRulesHandler,
 });

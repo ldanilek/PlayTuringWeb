@@ -1,7 +1,7 @@
-import { generateChallenge } from "./Challenges";
+import { Doc } from "../../convex/_generated/dataModel";
+import { challengeNameToIndex, generateChallenge } from "./Challenges";
 
 export type State = number;
-export type Tape = string[];
 
 export enum Direction {
   Left = 'left',
@@ -15,6 +15,18 @@ export interface Rule {
   write: string;
   direction: Direction;
 }
+
+export function mapRule(rule: Doc<"rules">["rule"]): Rule {
+  return {
+    state: rule.state,
+    read: rule.read,
+    newState: rule.newState,
+    write: rule.write,
+    direction: rule.direction === "left" ? Direction.Left : Direction.Right,
+  };
+}
+
+export type Tape = string[];
 
 export const BLANK = '_';
 export const END_STATE = -1;
@@ -156,4 +168,9 @@ export function calculateAccuracy(rules: Rule[], challengeIndex: number): boolea
     }
   }
   return true;
+}
+
+export function calculateAccuracyForChallenge(rules: Rule[], challengeName: string): boolean {
+  const challengeIndex = challengeNameToIndex(challengeName);
+  return calculateAccuracy(rules, challengeIndex);
 }
