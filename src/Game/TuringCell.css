@@ -1,0 +1,29 @@
+:root {
+  --turing-cell-width: 40px;
+  --turing-cell-gap: 2px;
+}
+
+.tape-cell {
+  flex: 1;
+  min-width: var(--turing-cell-width);
+  height: var(--turing-cell-width);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-tape-bg);
+  border: 2px solid var(--color-tape-border);
+  color: var(--color-tape-char);
+  font-weight: bold;
+  font-family: system-ui, -apple-system, sans-serif;
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.2s ease;
+}
+
+.tape-cell:hover {
+  opacity: 0.9;
+}
+
+.tape-cell.selected {
+  background-color: var(--color-tape-selected);
+} 

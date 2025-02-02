@@ -1,0 +1,48 @@
+.rule-display {
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 13px;
+  display: flex;
+  justify-content: space-around;
+  gap: 8px;
+  padding: 4px 8px;
+  background-color: var(--color-tape-bg);
+  border-radius: 4px;
+  color: var(--color-tape-char);
+  width: 100%;
+}
+
+.rule-left, .rule-right {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+}
+
+.rule-text {
+  font-weight: normal;
+}
+
+.rule-char {
+  font-weight: bold;
+  background-color: var(--color-tape-selected);
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+
+.rule-state {
+  font-family: 'Menlo', monospace;
+  font-weight: bold;
+}
+
+.rule-arrow {
+  font-size: 16px;
+  padding: 0 4px;
+  color: var(--color-tape-char);
+  opacity: 0.7;
+}
+
+.rule-direction {
+  font-size: 16px;
+  padding-left: 2px;
+} 

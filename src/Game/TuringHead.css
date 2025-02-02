@@ -1,0 +1,44 @@
+:root {
+  --turing-head-width: 40px;
+}
+
+.turing-head {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: var(--turing-head-width);
+  top: 100%;
+  left: calc(var(--selected-index) * (var(--actual-cell-width) + var(--turing-cell-gap)) + (var(--actual-cell-width) - var(--turing-head-width)) / 2);
+  transition: left 0.3s ease;
+}
+
+.turing-head-state {
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 20px;
+  text-align: center;
+  height: 75%;
+  width: 100%;
+  color: var(--color-tape-char);
+}
+
+.turing-head-arrow {
+  position: absolute;
+  top: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 20px;
+  height: 5.5px;
+  display: flex;
+  justify-content: center;
+}
+
+.turing-head-arrow::before {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 0;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-bottom: 5.5px solid var(--color-tape-char);
+} 
