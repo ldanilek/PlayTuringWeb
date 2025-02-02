@@ -124,6 +124,7 @@
   margin: 0;
   line-height: 1.4;
   size: 14px;
+  flex: 1;
 }
 
 .help-navigation {
@@ -132,14 +133,21 @@
   gap: 12px;
 }
 
+.nav-buttons {
+  display: flex;
+  gap: 4px;
+}
+
 .nav-button {
   background: none;
-  border: none;
-  color: white;
-  padding: 4px;
+  border: 2px solid var(--color-tape-char);
+  color: var(--color-tape-char);
+  padding: 4px 8px;
   cursor: pointer;
   font-size: 16px;
   opacity: 0.8;
+  border-radius: 4px;
+  transition: all 0.2s ease;
 }
 
 .nav-button:disabled {
@@ -149,6 +157,8 @@
 
 .nav-button:not(:disabled):hover {
   opacity: 1;
+  background-color: var(--color-tape-char);
+  color: var(--color-tape-bg);
 }
 
 .help-counter {

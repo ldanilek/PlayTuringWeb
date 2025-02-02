@@ -146,7 +146,6 @@ export function generateChallenge(index: number): Challenge {
           "Loop through your four states"
         ],
         requiresEndState: false,
-        customStates: ['q0', 'q0_', 'q1', 'q1_']
       };
 
     case 6: // Bit flipper

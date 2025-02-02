@@ -61,21 +61,23 @@ export function HelpButton({ onHint, finalState }: { onHint: (hintIndex?: number
       {isOpen && (
         <div className="help-tooltip">
           <div className="help-navigation">
-            <button 
-              onClick={goToPrev} 
-              className="nav-button"
-              disabled={currentIndex === 0}
-            >
-              ←
-            </button>
-            <p onClick={goToNext}>{helpTexts[currentIndex]}</p>
-            <button 
-              onClick={goToNext} 
-              className="nav-button"
-              disabled={currentIndex === helpTexts.length - 1}
-            >
-              →
-            </button>
+            <div className="nav-buttons">
+              <button 
+                onClick={goToPrev} 
+                className="nav-button"
+                disabled={currentIndex === 0}
+              >
+                ←
+              </button>
+              <button 
+                onClick={goToNext} 
+                className="nav-button"
+                disabled={currentIndex === helpTexts.length - 1}
+              >
+                →
+              </button>
+            </div>
+            <p>{helpTexts[currentIndex]}</p>
           </div>
         </div>
       )}
@@ -140,6 +142,7 @@ export function RuleEditor({
 
       <div className="rule-editor-content">
         <div className="tape-section">
+          <p>Choose start state and character:</p>
           <div className="condition-tape">
             <TuringTape
               characters={["", {
@@ -158,6 +161,7 @@ export function RuleEditor({
             />
           </div>
 
+          <p>Choose output state, direction, and character:</p>
           <div className="result-tape">
             <TuringTape
               characters={[directionTape(Direction.Left), {
