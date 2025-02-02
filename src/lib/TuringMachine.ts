@@ -1,3 +1,5 @@
+import { generateChallenge } from "./Challenges";
+
 export type State = number;
 export type Tape = string[];
 
@@ -30,16 +32,15 @@ export class TuringMachine {
 
   constructor(
     rules: Rule[],
-    initialTape: Tape = [BLANK],
-    tapeIndex: number = 0,
-    initialState: State = 0,
-    bounded: boolean = true
+    initialTape: Tape,
+    tapeIndex: number,
+    initialState: State,
   ) {
     this.rules = rules;
     this.state = initialState;
     this.tape = initialTape;
     this.index = tapeIndex;
-    this.bounded = bounded;
+    this.bounded = true;
   }
 
   private left(): void {
@@ -139,4 +140,20 @@ export class TuringMachine {
   public getCurrentIndex(): number {
     return this.index;
   }
+}
+
+export function calculateAccuracy(rules: Rule[], challengeIndex: number): boolean {
+  for (let i = 0; i < 100; i++) {
+    const challenge = generateChallenge(challengeIndex);
+    const initialTape = challenge.startTape.slice();
+    const goalTape = challenge.goalTape.slice();
+    const finalStateMustBe = challenge.requiresEndState ? challenge.maxState + 1 : undefined;
+    const machine = new TuringMachine(rules, initialTape, challenge.startIndex, challenge.startState);
+    const solved = machine.solve(goalTape, finalStateMustBe);
+    if (!solved) {
+      console.log('Failed to solve', challenge.startTape.slice(), challenge.goalTape.slice(), machine.getCurrentTape());
+      return false;
+    }
+  }
+  return true;
 }

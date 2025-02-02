@@ -5,11 +5,12 @@ import {
   Tape, 
   generateChallenge
 } from '@/lib/Challenges';
-import { Direction, Rule } from '@/lib/TuringMachine';
+import { calculateAccuracy, Direction, Rule } from '@/lib/TuringMachine';
 import { RuleDisplay } from './RuleDisplay';
 import { RuleEditor } from './RuleEditor';
 import { api } from '../../convex/_generated/api';
 import { useMutation, useQuery } from 'convex/react';
+import { useNavigate } from 'react-router-dom';
 
 interface ChallengeProps {
   index: number;
@@ -17,6 +18,7 @@ interface ChallengeProps {
 }
 
 export function Challenge({ index: challengeIndex, onComplete }: ChallengeProps) {
+  const navigate = useNavigate();
   const markChallengeCompleted = useMutation(api.challengeAttempts.challengeCompleted);
   const [reloadCount, setReloadCount] = useState(0);
   const challenge = useMemo(() => generateChallenge(challengeIndex), [challengeIndex, reloadCount]);
@@ -30,6 +32,8 @@ export function Challenge({ index: challengeIndex, onComplete }: ChallengeProps)
   const goalTape = useMemo(() => challenge.goalTape.slice(), [challenge.goalTape]);
   const [isRuleEditorOpen, setIsRuleEditorOpen] = useState(false);
   const [editingRule, setEditingRule] = useState<Rule | undefined>(undefined);
+  const [highlightedRule, setHighlightedRule] = useState<Rule | undefined>(undefined);
+  const [isSuccess, setIsSuccess] = useState(false);
 
   const rulesRaw = useQuery(api.rules.getRules, { challengeIndex });
   const rules: Rule[] | undefined = useMemo(() => rulesRaw?.map(r => ({
@@ -105,18 +109,26 @@ export function Challenge({ index: challengeIndex, onComplete }: ChallengeProps)
       return;
     }
 
+    setHighlightedRule(rule);
+
     // Apply the rule
     const newTape = [...tape];
     newTape[headPosition] = rule.write;
     const newHeadPosition = rule.direction === Direction.Right ? headPosition + 1 : headPosition - 1;
 
     // Check if goal is reached
-    if (JSON.stringify(newTape) === JSON.stringify(goalTape)) {
+    if (JSON.stringify(newTape) === JSON.stringify(goalTape) &&
+        (!challenge.requiresEndState || currentState === challenge.maxState + 1)) {
       setTape(newTape);
       setCurrentState(rule.newState);
-      // setHeadPosition(newHeadPosition);
       setIsPlaying(false);
-      setAlert('Success!');
+      const accuracy = calculateAccuracy(rules, challengeIndex);
+      if (!accuracy) {
+        setAlert('You solved this instance of the challenge, but missed some edge cases! Try "Reload".');
+        return;
+      }
+      setIsSuccess(true);
+      setAlert('Success! You did it! Try another challenge!');
       void markChallengeCompleted({ challengeIndex });
       onComplete?.();
       return;
@@ -157,9 +169,11 @@ export function Challenge({ index: challengeIndex, onComplete }: ChallengeProps)
 
   const handleSaveRule = useCallback((rule: Rule) => {
     void saveRule({ challengeIndex, rule, replacingRule: editingRule });
+    setAlert(null);
     setIsRuleEditorOpen(false);
     setEditingRule(undefined);
     startOver();
+    setHighlightedRule(rule);
   }, [setEditingRule, setIsRuleEditorOpen, startOver, saveRule, editingRule]);
 
   const handleCancelRule = useCallback(() => {
@@ -233,10 +247,10 @@ export function Challenge({ index: challengeIndex, onComplete }: ChallengeProps)
           </button>
           <button 
             className="button"
-            onClick={() => setSpeed(prev => prev * 2)}
+            onClick={() => setSpeed(prev => speed < 16 ? prev * 2 : 1)}
             disabled={!isPlaying}
           >
-            Speed Up
+            { speed < 16 ? 'Speed Up' : 'Reset Speed' }
           </button>
         </div>
       </div>
@@ -266,7 +280,7 @@ export function Challenge({ index: challengeIndex, onComplete }: ChallengeProps)
             Add Rule
           </button>
           {rules?.map((rule, ruleIndex) => (
-            <div key={ruleIndex} className="rule">
+            <div key={ruleIndex} className={`rule ${highlightedRule?.state === rule.state && highlightedRule?.read === rule.read ? 'highlighted' : ''}`}>
               <RuleDisplay rule={rule} onClick={() => handleEditRule(ruleIndex)} />
               <div className="rule-actions">
                 <button 
@@ -306,6 +320,15 @@ export function Challenge({ index: challengeIndex, onComplete }: ChallengeProps)
             />
           </div>
         </div>
+      )}
+
+      {isSuccess && (
+        <button 
+          className="more-challenges"
+          onClick={() => navigate('/')}
+        >
+          More Challenges →
+        </button>
       )}
     </div>
   );
