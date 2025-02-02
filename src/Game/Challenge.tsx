@@ -115,12 +115,13 @@ export function Challenge({ index: challengeIndex, onComplete }: ChallengeProps)
     const newTape = [...tape];
     newTape[headPosition] = rule.write;
     const newHeadPosition = rule.direction === Direction.Right ? headPosition + 1 : headPosition - 1;
+    const newState = rule.newState;
 
     // Check if goal is reached
     if (JSON.stringify(newTape) === JSON.stringify(goalTape) &&
-        (!challenge.requiresEndState || currentState === challenge.maxState + 1)) {
+        (!challenge.requiresEndState || newState === challenge.maxState + 1)) {
       setTape(newTape);
-      setCurrentState(rule.newState);
+      setCurrentState(newState);
       setIsPlaying(false);
       const accuracy = calculateAccuracy(rules, challengeIndex);
       if (!accuracy) {
@@ -141,7 +142,7 @@ export function Challenge({ index: challengeIndex, onComplete }: ChallengeProps)
     }
 
     setTape(newTape);
-    setCurrentState(rule.newState);
+    setCurrentState(newState);
     setHeadPosition(newHeadPosition);
 
   }, [isPlaying, tape, headPosition, currentState, rules, goalTape, onComplete]);
