@@ -10,7 +10,7 @@
   --color-tape-selected-light: rgb(16, 27, 78);
   --color-tape-bg-light: rgb(35, 92, 155);
   --color-tape-char-light: rgb(255, 255, 255);
-  --color-tape-highlight-light: rgb(200, 200, 0);
+  --color-tape-highlight-light: rgb(255, 165, 0);
 
   /* Dark mode colors */
   --color-teal-dark: rgb(102, 180, 214);
