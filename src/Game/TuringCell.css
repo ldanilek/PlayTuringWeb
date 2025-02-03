@@ -1,12 +1,6 @@
-:root {
-  --turing-cell-width: 40px;
-  --turing-cell-gap: 2px;
-}
-
 .tape-cell {
   flex: 1;
-  min-width: var(--turing-cell-width);
-  height: var(--turing-cell-width);
+  height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;

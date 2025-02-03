@@ -9,7 +9,7 @@
   align-items: center;
   width: var(--turing-head-width);
   top: 100%;
-  left: calc(var(--selected-index) * (var(--actual-cell-width) + var(--turing-cell-gap)) + (var(--actual-cell-width) - var(--turing-head-width)) / 2);
+  left: calc(var(--selected-index) * (var(--actual-cell-width)) + (var(--actual-cell-width) - var(--turing-head-width)) / 2);
   transition: left 0.3s ease;
 }
 
