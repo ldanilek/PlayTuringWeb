@@ -24,8 +24,7 @@ export function TuringTape({ characters, selectedIndex, onTapCell, state, stateO
     const updateCellWidth = () => {
       const containerWidth = containerRef.current?.clientWidth ?? 0;
       const numCells = characters.length;
-      const totalGapWidth = (numCells - 1) * 2; // 2px gap between cells
-      const width = (containerWidth - totalGapWidth) / numCells;
+      const width = containerWidth / numCells;
       setCellWidth(width);
     };
 
