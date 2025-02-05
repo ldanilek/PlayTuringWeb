@@ -354,7 +354,7 @@ export function generateChallenge(index: number): Challenge {
       return {
         name: "Inverse Counter",
         startTape: makeTape([BLANK], countBits, [BLANK], createBlanks(ones.length)),
-        goalTape: makeTape(createBlanks(countBits.length), [BLANK], ones),
+        goalTape: makeTape([BLANK], createBlanks(countBits.length), [BLANK], ones),
         startIndex: countBits.length,
         startState: 0,
         maxState: 4,
