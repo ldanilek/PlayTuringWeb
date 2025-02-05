@@ -57,11 +57,13 @@ export interface Challenge {
   hints: string[];
   requiresEndState: boolean;
   customStates?: string[];
+  tutorialTip?: string;
 }
 
 export function generateChallenge(index: number): Challenge {
   switch (index) {
     case 0: // Getting Started
+    {
       return {
         name: "Getting Started",
         startTape: [BLANK],
@@ -72,9 +74,12 @@ export function generateChallenge(index: number): Challenge {
         allowedCharacters: [BLANK, '1'],
         hints: ['Rule you need: read "_"→ write "1"'],
         requiresEndState: false,
+        tutorialTip: 'Click "Add Rule" and create a rule that reads _ and writes 1',
       };
+    }
 
     case 1: // Go Right
+    {
       return {
         name: "Go Right",
         startTape: [BLANK, BLANK],
@@ -83,37 +88,42 @@ export function generateChallenge(index: number): Challenge {
         startState: 0,
         maxState: 0,
         allowedCharacters: [BLANK, '1'],
-        hints: ['Rule: Read "-", write "1", move Right'],
-        requiresEndState: false
+        hints: ['Rule: Read "_", write "1", move Right'],
+        requiresEndState: false,
+        tutorialTip: 'Add a rule that reads "_", writes "1", and moves right ➡︎',
       };
+    }
 
     case 2: // Deletion
       return {
         name: "Deletion",
-        startTape: ['1', '1', '1', '1'],
-        goalTape: [BLANK, BLANK, BLANK, BLANK],
+        startTape: ['🥝', '🥝', '🥝', '🥝'],
+        goalTape: ['🥥', '🥥', '🥥', '🥥'],
         startIndex: 3,
         startState: 0,
         maxState: 0,
-        allowedCharacters: [BLANK, '1'],
-        hints: ['Rule: Read "1", write "_", and move Left'],
-        requiresEndState: false
+        allowedCharacters: ['🥝', '🥥'],
+        hints: ['Rule: Read "🥝", write "🥥", and move Left'],
+        requiresEndState: false,
+        tutorialTip: 'Characters can be anything, even emojis! Add a rule that reads "🥝", writes "🥥", and moves left ⬅︎',
       };
 
     case 3:
       return {
         name: "All On",
-        startTape: ['0', '1', '0', '0', '1', '0', '1'],
-        goalTape: ['1', '1', '1', '1', '1', '1', '1'],
+        startTape: ['😴', '😎', '😴', '😴', '😎', '😴', '😎'],
+        goalTape: ['😎', '😎', '😎', '😎', '😎', '😎', '😎'],
         startIndex: 0,
         startState: 0,
         maxState: 0,
-        allowedCharacters: ['0', '1'],
-        hints: ["Two rules: 0→1 and 1→1"],
-        requiresEndState: false
+        allowedCharacters: ['😴', '😎'],
+        hints: ["Two rules: 😴→😎 and 😎→😎"],
+        requiresEndState: false,
+        tutorialTip: 'Now you need two rules',
       };
 
     case 4: // Alternator
+    {
       const sequence = ['0', '1', '0', '1', '0', '1', '0'];
       return {
         name: "Alternator",
@@ -124,14 +134,15 @@ export function generateChallenge(index: number): Challenge {
         maxState: 1,
         allowedCharacters: [BLANK, '0', '1'],
         hints: [
-          "Now you need two states",
-          "Alternate between states q0 and q1",
           "q0 means write \"0\", q1 means write \"1\""
         ],
-        requiresEndState: false
+        requiresEndState: false,
+        tutorialTip: "Your machine now has two states: q0 and q1. When in q0, write 0 and switch to q1. When in q1, write 1 and switch to q0.",
       };
+    }
 
     case 5: // Sequencer
+    {
       return {
         name: "Sequencer",
         startTape: createBlanks(9),
@@ -147,8 +158,10 @@ export function generateChallenge(index: number): Challenge {
         ],
         requiresEndState: false,
       };
+    }
 
     case 6: // Bit flipper
+    {
       const flipperBits = createArrayFromArray(getRandomInt(5, 12), ['0', '1']);
       const flipped = flipperBits.map(c => c === '0' ? '1' : '0');
       return {
@@ -165,9 +178,12 @@ export function generateChallenge(index: number): Challenge {
         ],
         requiresEndState: false,
         customStates: ['🩴'],
+        tutorialTip: "States can be any character, even emojis!",
       };
+    }
 
     case 7: // There and back
+    {
       return {
         name: "There and back",
         startTape: [BLANK, '1', '1', '1', '1', '1', BLANK],
@@ -182,10 +198,13 @@ export function generateChallenge(index: number): Challenge {
           "Blanks remain blank",
           "Experiment with directions"
         ],
-        requiresEndState: false
+        requiresEndState: false,
+        tutorialTip: "This is the first 'challenging' challenge. With only one state, write rules that zero out the whole tape.",
       };
+    }
 
     case 8: // Carry the one
+    {
       return {
         name: "Carry the one",
         startTape: ["1", "0", "0", "0", "0", "0", "1"],
@@ -194,11 +213,16 @@ export function generateChallenge(index: number): Challenge {
         startState: 0,
         maxState: 1,
         allowedCharacters: [BLANK, '0', '1'],
-        hints: [],
-        requiresEndState: true
+        hints: [
+          'Read 1 in state q0, write _ and set to state q1',
+        ],
+        requiresEndState: true,
+        tutorialTip: 'Use your two states to move the 1 to the right. You should end in the terminal state q2.',
       };
+    }
 
     case 9: // Binary Add 1
+    {
       const number = (getRandomInt(0, 59) + 1) * 2 - 1;
       const numberBits = intToBinary(number);
       const subBits = intToBinary(number + 1);
@@ -221,10 +245,13 @@ export function generateChallenge(index: number): Challenge {
           "Got to the right of the digits",
           "0→1, 1→0"
         ],
-        requiresEndState: true
+        requiresEndState: true,
+        tutorialTip: `This is the first "useful" challenge. Increment the binary representation of ${number} by 1 to get the binary representation of ${number + 1}.`,
       };
+    }
 
     case 10: // Compression
+    {
       let toCondense = ["1"];
       let compressed = ["1"];
       while (compressed.length === 0 || compressed.length === toCondense.length) {
@@ -240,13 +267,15 @@ export function generateChallenge(index: number): Challenge {
         maxState: 2,
         allowedCharacters: [BLANK, '0', '1'],
         hints: [
-          "If a pair is out of order,",
-          "Perform swaps of adjacents"
+          "If a pair is out of order, perform swaps of adjacents",
         ],
-        requiresEndState: true
+        requiresEndState: true,
+        tutorialTip: 'Compress the tape by removing 0s. Make sure to handle all cases (click Reload to generate more cases).'
       }
+    }
 
     case 11: // Duplicator
+    {
     /*
     let toDup = Array(repeating: Character("1"), count: Int(arc4random())%10 + 1)
             let placeToPutDup = Array(repeating: b, count: toDup.count)
@@ -270,8 +299,10 @@ export function generateChallenge(index: number): Challenge {
         ],
         requiresEndState: true
       };
+    }
 
     case 12: // Sort
+    {
       let toSort: Tape = [];
       let sorted: Tape = [];
       while (JSON.stringify(toSort) === JSON.stringify(sorted)) {
@@ -293,6 +324,7 @@ export function generateChallenge(index: number): Challenge {
         ],
         requiresEndState: true
       };
+    }
 
     case 13:
     {
@@ -395,6 +427,7 @@ export function generateChallenge(index: number): Challenge {
    }
 
     case 17: // Copier
+    {
       const toDuplicate = createArrayFromArray(6, ['0', '1']);
       const blanks = createBlanks(toDuplicate.length);
       const firstPart = makeTape([BLANK], toDuplicate, [BLANK]);
@@ -415,6 +448,7 @@ export function generateChallenge(index: number): Challenge {
         ],
         requiresEndState: true
       };
+    }
 
     case 18: // Palindrome
     {
@@ -544,6 +578,7 @@ export function generateChallenge(index: number): Challenge {
     }
 
     case 23: // Bisect
+    {
       const spacing = getRandomInt(2, 9);
       return {
         name: "Bisect",
@@ -560,6 +595,7 @@ export function generateChallenge(index: number): Challenge {
         ],
         requiresEndState: true
       };
+    }
 
     case 24: // Trisect
     {

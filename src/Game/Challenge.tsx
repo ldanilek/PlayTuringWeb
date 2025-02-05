@@ -22,14 +22,16 @@ export function Challenge({ index: challengeIndex, onComplete }: ChallengeProps)
   const navigate = useNavigate();
   const markChallengeCompleted = useMutation(api.challengeAttempts.challengeCompleted);
   const [reloadCount, setReloadCount] = useState(0);
-  const challenge = useMemo(() => generateChallenge(challengeIndex), [challengeIndex, reloadCount]);
+  const challenge = useMemo(() => {
+    return generateChallenge(challengeIndex)
+  }, [challengeIndex, reloadCount]);
   const challengeName = useMemo(() => challenge.name, [challenge]);
 
   const [tape, setTape] = useState<Tape>(challenge.startTape.slice());
   const [headPosition, setHeadPosition] = useState(challenge.startIndex);
   const [currentState, setCurrentState] = useState(challenge.startState);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [speed, setSpeed] = useState(1);
+  const [speed, setSpeed] = useState(2);
   const [alert, setAlert] = useState<string | null>(null);
   const goalTape = useMemo(() => challenge.goalTape.slice(), [challenge.goalTape]);
   const [isRuleEditorOpen, setIsRuleEditorOpen] = useState(false);
@@ -82,7 +84,7 @@ export function Challenge({ index: challengeIndex, onComplete }: ChallengeProps)
 
   useEffect(() => {
     startOver();
-  }, [challenge]);
+  }, [challenge, startOver]);
 
   const [addRuleHighlight, setAddRuleHighlight] = useState(false);
 
@@ -144,7 +146,7 @@ export function Challenge({ index: challengeIndex, onComplete }: ChallengeProps)
     setCurrentState(newState);
     setHeadPosition(newHeadPosition);
 
-  }, [isPlaying, tape, headPosition, currentState, rules, goalTape, onComplete]);
+  }, [tape, headPosition, currentState, rules, goalTape, onComplete, challengeIndex, challenge, challengeName, markChallengeCompleted]);
 
   useEffect(() => {
     if (!isPlaying) return;
@@ -177,7 +179,7 @@ export function Challenge({ index: challengeIndex, onComplete }: ChallengeProps)
     startOver();
     setHighlightedRule(rule);
     setIsPlaying(true);
-  }, [setEditingRule, setIsRuleEditorOpen, startOver, saveRule, editingRule]);
+  }, [setEditingRule, setIsRuleEditorOpen, startOver, saveRule, editingRule, challengeName]);
 
   const handleCancelRule = useCallback(() => {
     setIsRuleEditorOpen(false);
@@ -193,7 +195,7 @@ export function Challenge({ index: challengeIndex, onComplete }: ChallengeProps)
     startOver();
     setIsPlaying(true);
     setAddRuleHighlight(false);
-  }, [deleteRule, rules]);
+  }, [deleteRule, rules, challengeName, startOver]);
   
   const currentRuleNeeded: Rule | undefined = useMemo(() => {
     const existingRule = rules?.find(r => r.state === currentState && r.read === tape[headPosition]);
@@ -258,7 +260,7 @@ export function Challenge({ index: challengeIndex, onComplete }: ChallengeProps)
           </button>
           <button 
             className="button"
-            onClick={() => setSpeed(prev => speed < 16 ? prev * 2 : 1)}
+            onClick={() => setSpeed(prev => speed < 16 ? prev * 2 : 2)}
             disabled={!isPlaying}
           >
             { speed < 16 ? 'Speed Up' : 'Reset Speed' }
@@ -266,6 +268,7 @@ export function Challenge({ index: challengeIndex, onComplete }: ChallengeProps)
         </div>
       </div>
       <h1>{challenge.name}</h1>
+      { challenge.tutorialTip && <p>{challenge.tutorialTip}</p> }
 
       <div className="challenge-content">
         <TuringTape
@@ -331,6 +334,7 @@ export function Challenge({ index: challengeIndex, onComplete }: ChallengeProps)
               onCancel={handleCancelRule}
               initialRule={editingRule ?? currentRuleNeeded}
               customStates={challenge.customStates}
+              tapeLength={tape.length}
             />
           </div>
         </div>
@@ -339,7 +343,9 @@ export function Challenge({ index: challengeIndex, onComplete }: ChallengeProps)
       {isSuccess && (
         <button 
           className="more-challenges"
-          onClick={() => navigate('/')}
+          onClick={() => {
+            void navigate('/')
+          }}
         >
           More Challenges →
         </button>

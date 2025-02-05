@@ -12,29 +12,20 @@ export function GetStartedDialog({ children }: { children: ReactNode }) {
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="dialog-content max-w-2xl max-h-[calc(100vh-8rem)] grid-rows-[1fr_auto] overflow-y-auto">
         <div className="flex flex-col gap-4">
-          <h1>About Turing Machines</h1>
-        <p>
-          A turing machine is the ultimate hypothetical computer, 
-          but it operates under simple principles. 
-          It has some states (q0, q1, q2, ...) and it reads from a tape 
-          with some characters (-, 0, 1, ...).
-        </p>
-        <p>
-          At each step, the machine follows rules. 
-          Based on the current state and the current character, 
-          the machine knows what rule to use. 
-          The rule tells it to write a new character, 
-          go to a new state, and move left or right on the tape.
-        </p>
-        <p>
-          Using certain rules, a turing machine could do anything a supercomputer can do, 
-          but programming that machine would be a hassle. 
-          Some of the small procedures, like adding two numbers, 
-          are simple enough to program. 
-          Play Turing presents these simple programming challenges as levels, 
-          so the player can learn how Turing Machines work 
-          and develop algorithmic thinking.
-        </p>
+          <h1>Write programs for a Turing Machine</h1>
+            <p><a href="https://en.wikipedia.org/wiki/Turing_machine">Turing Machines</a> are computers that follow simple rules.</p>
+            <ul>
+              <li>They have a tape of characters</li>
+              <li>They have a "head" that moves back and forth along the tape</li>
+              <li>They have an internal state and can switch between them, like q0, q1, q2, ...</li>
+              <li>They have rules. These are what you write! Each rule has two conditions and three actions:</li>
+              <ul>
+                <li>Conditions: rule activates based on the current internal state and the current character</li>
+                <li>Actions: write a new character, switch to a new internal state, and move left or right</li>
+              </ul>
+            </ul>
+          <p>Having trouble with the controls? Here's the solution for challenge 9:</p>
+          <video src="/binary_add_1.mov" autoPlay muted loop />
         </div>
         <div className="flex flex-col gap-4">
           <h1>How to play</h1>

@@ -13,6 +13,7 @@ interface RuleEditorProps {
   onCancel: () => void;
   initialRule?: Rule;
   customStates: string[] | undefined;
+  tapeLength: number;
 }
 
 export function HelpButton({ onHint, finalState }: { onHint: (hintIndex?: number) => void; finalState: string | null }) {
@@ -92,7 +93,8 @@ export function RuleEditor({
   onSave,
   onCancel,
   initialRule,
-  customStates
+  customStates,
+  tapeLength,
 }: RuleEditorProps) {
   // State management
   const [startingState, setStartingState] = useState<State>(initialRule?.state ?? 0);
@@ -102,11 +104,11 @@ export function RuleEditor({
   const [direction, setDirection] = useState<Direction>(initialRule?.direction ?? Direction.Left);
 
   // Which of the things have they clicked on?
-  const [clickedStartState, setClickedStartState] = useState(false);
-  const [clickedReadCharacter, setClickedReadCharacter] = useState(false);
-  const [clickedEndState, setClickedEndState] = useState(false);
+  const [clickedStartState, setClickedStartState] = useState(maxState === 0 || initialRule !== undefined);
+  const [clickedReadCharacter, setClickedReadCharacter] = useState(initialRule !== undefined);
+  const [clickedEndState, setClickedEndState] = useState(maxState === 0 && !hasFinalState);
   const [clickedWriteCharacter, setClickedWriteCharacter] = useState(false);
-  const [clickedDirection, setClickedDirection] = useState(false);
+  const [clickedDirection, setClickedDirection] = useState(tapeLength === 1);
 
   // Current rule based on state
   const currentRule: Rule = useMemo(() => ({
